@@ -15,6 +15,42 @@ import { format } from "date-fns";
 import { api, formatApiError } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteData";
 
+// Translate raw backend / Pydantic errors into friendly, guest-facing messages.
+const friendlyError = (err) => {
+  const status = err?.response?.status;
+  if (status === 0 || err?.code === "ERR_NETWORK") {
+    return "We couldn't reach the server. Please check your connection and try again.";
+  }
+  if (status >= 500) {
+    return "Something went wrong on our side. Please try again in a moment.";
+  }
+  const detail = err?.response?.data?.detail;
+  if (Array.isArray(detail) && detail.length > 0) {
+    const first = detail[0] || {};
+    const field = Array.isArray(first.loc) ? first.loc[first.loc.length - 1] : "";
+    const type = first.type || "";
+    const labels = {
+      name: "name",
+      email: "email address",
+      phone: "phone number",
+      event_type: "event type",
+      event_date: "event date",
+      guest_count: "guest count",
+      location: "venue / location",
+      message: "message",
+    };
+    const label = labels[field] || (field ? String(field).replace(/_/g, " ") : "form");
+    if (type.includes("email")) return "That email address doesn't look right — please double-check.";
+    if (type.includes("missing")) return `Please add your ${label}.`;
+    if (type.includes("string_too_short")) return `Your ${label} looks a bit short — please enter the full value.`;
+    if (type.includes("string_too_long")) return `Your ${label} is too long — please shorten it a little.`;
+    if (type.includes("value_error")) return `Your ${label} isn't quite right — please double-check it.`;
+    return `Please double-check your ${label}.`;
+  }
+  if (typeof detail === "string") return detail;
+  return formatApiError(err);
+};
+
 const EVENT_TYPES = [
   "Luxury Wedding",
   "Destination Wedding",
@@ -42,23 +78,47 @@ export const Booking = () => {
 
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
+  const validate = () => {
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const phone = form.phone.trim();
+    if (!name) return "Please enter your name.";
+    if (name.length < 2) return "That name looks a bit short — please enter your full name.";
+    if (!email) return "Please enter your email so we can reach you.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return "That email address doesn't look right — please double-check.";
+    if (!phone) return "Please share your phone number so we can call you back.";
+    const digitCount = phone.replace(/\D/g, "").length;
+    if (digitCount < 7) return "That phone number seems too short — please include the full number.";
+    if (!form.event_type) return "Please choose the type of event you're planning.";
+    if (form.message && form.message.length > 2000)
+      return "Your message is quite long — please shorten it to under 2000 characters.";
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.phone || !form.event_type) {
-      toast.error("Please fill your name, email, phone and event type.");
+    const error = validate();
+    if (error) {
+      toast.error(error);
       return;
     }
     setSubmitting(true);
     try {
       const payload = {
         ...form,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        location: (form.location || "").trim(),
+        message: (form.message || "").trim(),
         event_date: form.event_date ? format(form.event_date, "yyyy-MM-dd") : null,
       };
       await api.post("/bookings", payload);
       toast.success("Inquiry received. Our team will reach out shortly.");
       setForm(initial);
     } catch (err) {
-      toast.error(formatApiError(err));
+      toast.error(friendlyError(err));
     } finally {
       setSubmitting(false);
     }
