@@ -49,6 +49,7 @@ export default function AdminLogin() {
           transition={{ duration: 0.7 }}
           className="w-full max-w-md bg-[#1a1a1a] border border-[#C9A227]/20 p-8 lg:p-10"
           data-testid="admin-login-form"
+          autoComplete="off"
         >
           <div className="flex items-center gap-3 text-[#C9A227]">
             <Lock size={18} />
@@ -69,7 +70,7 @@ export default function AdminLogin() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Your admin username"
-                autoComplete="username"
+                autoComplete="off"
                 data-testid="admin-username"
                 className="w-full bg-transparent border-b border-[#C9A227]/25 focus:border-[#C9A227] outline-none py-3 text-[#F8F6F2] placeholder:text-[#F8F6F2]/40 text-sm"
                 required
@@ -82,7 +83,10 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                autoComplete="current-password"
+                autoComplete="new-password"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
                 data-testid="admin-password"
                 className="w-full bg-transparent border-b border-[#C9A227]/25 focus:border-[#C9A227] outline-none py-3 text-[#F8F6F2] placeholder:text-[#F8F6F2]/40 text-sm"
                 required

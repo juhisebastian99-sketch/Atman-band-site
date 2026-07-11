@@ -26,7 +26,7 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ALG = "HS256"
 TOKEN_EXPIRY_DAYS = 7
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'Ashutosh12').strip()
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Ashutosh12')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Ashutosh@12')
 
 app = FastAPI(title="ATMAN Live Music API")
 api_router = APIRouter(prefix="/api")

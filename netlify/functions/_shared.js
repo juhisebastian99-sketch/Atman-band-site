@@ -10,7 +10,7 @@ export const getSecret = () =>
 export const getAdminUsername = () =>
   (process.env.ADMIN_USERNAME || "Ashutosh12").trim();
 export const getAdminPassword = () =>
-  process.env.ADMIN_PASSWORD || "Ashutosh12";
+  process.env.ADMIN_PASSWORD || "Ashutosh@12";
 
 export const store = () => getStore({ name: "atman", consistency: "strong" });
 

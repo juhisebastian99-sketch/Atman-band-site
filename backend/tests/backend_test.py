@@ -8,7 +8,8 @@ BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://atman-events.preview
 API = f"{BASE_URL}/api"
 
 ADMIN_USERNAME = "Ashutosh12"
-ADMIN_PASSWORD = "Ashutosh12"
+ADMIN_PASSWORD = "Ashutosh@12"
+OLD_ADMIN_PASSWORD = "Ashutosh12"
 
 
 @pytest.fixture(scope="session")
@@ -89,6 +90,12 @@ def test_admin_login_success(s):
 def test_admin_login_wrong_password(s):
     r = s.post(f"{API}/admin/login", json={"username": ADMIN_USERNAME, "password": "wrong"}, timeout=15)
     assert r.status_code == 401
+
+
+def test_admin_login_old_password_rejected(s):
+    """Old password Ashutosh12 (without @) must be rejected after password change."""
+    r = s.post(f"{API}/admin/login", json={"username": ADMIN_USERNAME, "password": OLD_ADMIN_PASSWORD}, timeout=15)
+    assert r.status_code == 401, f"Old password unexpectedly accepted: {r.status_code} {r.text}"
 
 
 def test_admin_me_with_token(s, auth):

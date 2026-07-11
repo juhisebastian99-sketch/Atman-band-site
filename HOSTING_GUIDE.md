@@ -6,7 +6,7 @@ Full-stack site on Netlify **at $0/month**, with your admin panel intact.
 - Public site (React) → Netlify CDN
 - API (login, settings, videos, bookings) → **Netlify Functions** (125k requests/month free)
 - Storage → **Netlify Blobs** (free, no external DB)
-- Admin panel at `/admin` — login **Ashutosh12 / Ashutosh12** (change anytime via env vars)
+- Admin panel at `/admin` — login **Ashutosh12 / Ashutosh@12** (change anytime via env vars)
 
 ## Step-by-step deployment
 
@@ -23,7 +23,7 @@ Full-stack site on Netlify **at $0/month**, with your admin panel intact.
 4. Click **Show advanced → New variable** and add these 3 environment variables:
    ```
    ADMIN_USERNAME = Ashutosh12
-   ADMIN_PASSWORD = Ashutosh12
+   ADMIN_PASSWORD = Ashutosh@12
    JWT_SECRET     = any-long-random-string-at-least-32-characters
    ```
 5. Click **Deploy site** — takes ~3-5 minutes
@@ -32,7 +32,7 @@ Full-stack site on Netlify **at $0/month**, with your admin panel intact.
 ### 3) You're live
 - **Public site:** `https://<your-site>.netlify.app`
 - **Admin panel:** `https://<your-site>.netlify.app/admin`
-  - Log in with `Ashutosh12` / `Ashutosh12`
+  - Log in with `Ashutosh12` / `Ashutosh@12`
   - Update contact, socials, videos — changes reflect instantly on the public site (~2 second cache)
   - View incoming booking inquiries in the **Inquiries** tab
 - **Discrete admin link:** small lock icon in the site footer

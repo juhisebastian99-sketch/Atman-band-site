@@ -1,0 +1,16 @@
+{
+  "summary": "Verified admin password change (Ashutosh12 -> Ashutosh@12) end-to-end. Backend: 13/13 pytest tests passed including new test_admin_login_old_password_rejected that confirms the old plain password is now rejected (401). Frontend: /admin login page renders with correct autocomplete attrs (form=off, username=off, password=new-password + data-lpignore=true + data-1p-ignore=true + data-form-type=other). Login with Ashutosh12/Ashutosh@12 succeeds, redirects to /admin/dashboard, 'Welcome back' toast appears, token persisted in localStorage.atman_admin_token. All three dashboard tabs (Contact, Videos, Inquiries) render and their API calls (/api/settings, /api/videos, /api/admin/bookings) return 200. Regression tests for bookings POST, settings PUT, and videos CRUD all pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Ashutosh12 / Ashutosh@12 (admin)",
+  "seed_data_creation": "TEST_ prefixed booking and video records created during CRUD test (video deleted at end of test; bookings remain and are visible in Inquiries tab)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend test file at /app/backend/tests/backend_test.py has been updated with new password constant Ashutosh@12 and includes test_admin_login_old_password_rejected. Autocomplete attributes on AdminLogin.jsx verified in rendered DOM. Note: Chrome breach-list warning is a browser UI and cannot be validated by headless Playwright (as noted by main agent).",
+  "rca of the issue": "Not a bug — this iteration validates the password-change fix. Old password Ashutosh12 correctly rejected because seed_admin idempotently updates the bcrypt hash on backend startup when ADMIN_PASSWORD env var changes."
+}
