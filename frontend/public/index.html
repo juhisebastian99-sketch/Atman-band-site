@@ -15,6 +15,20 @@
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
+
+        <!-- Netlify Forms detection: this hidden form is scanned by Netlify at build time so the booking form can post to /. Do not remove. -->
+        <form name="booking" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+            <input type="text" name="name" />
+            <input type="email" name="email" />
+            <input type="text" name="phone" />
+            <input type="text" name="event_type" />
+            <input type="text" name="event_date" />
+            <input type="text" name="guest_count" />
+            <input type="text" name="location" />
+            <textarea name="message"></textarea>
+            <input type="text" name="submitted_at" />
+            <input type="text" name="bot-field" />
+        </form>
         <script>
             !(function (t, e) {
                 var o, n, p, r;

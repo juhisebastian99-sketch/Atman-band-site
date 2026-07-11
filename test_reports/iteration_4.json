@@ -1,0 +1,41 @@
+{
+  "summary": "Frontend-only testing of ATMAN static site refactor (backend + admin removed, Google Sheets + Netlify Forms). All 10 requested checks executed. Landing loads with 200, no console/page errors. Hero, sections, defaults, iframes, /admin wildcard, mobile menu, testimonials all work. Booking form validates gracefully with sonner toast on network failure (expected in preview since Netlify Forms only work post-deploy).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Empty booking form submit", "issue": "Empty-submit toast from handleSubmit does NOT fire because inputs have HTML5 `required` attribute — browser native validation intercepts submit before JS handler runs. Non-crashing and shows browser tooltip, so functionally graceful, but the review request explicitly wanted a sonner toast for empty submissions. Consider removing `required` on inputs OR adding noValidate on <form> if the sonner toast path is preferred.", "affected_selectors": ["[data-testid=\"booking-submit\"]"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_4.json"],
+  "action_items": [
+    "OPTIONAL: If you want the custom sonner toast to fire on empty submit (as stated in review request), add `noValidate` to the <form> in Booking.jsx OR remove HTML5 `required` attributes. Currently, browser native tooltip fires instead — still graceful, but not the sonner UX described in the review.",
+    "No other action items. Site is deploy-ready for Netlify."
+  ],
+  "critical_code_review_comments": [
+    "Booking.jsx line 165/178/190: `required` attrs on inputs bypass the custom sonner validation toast in handleSubmit. Pick one validation strategy.",
+    "Footer.jsx: A mailto social icon always renders because DEFAULT_SETTINGS.email is always set. Not a bug, just note that 'social icons only render when URL provided' isn't strictly true for the email default — 1 icon (email) always shows. If pristine 'zero-icon' state is desired when sheet not configured, add `s.email !== DEFAULT_SETTINGS.email` guard or remove email from socials list.",
+    "useSiteData.js is clean, well-documented, and handles fallback correctly."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% functional; 1 minor UX deviation"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend testing skipped intentionally. Frontend is fully static now; /admin/* wildcard renders Landing (verified no password field). Netlify Forms will only work after actual Netlify deployment — 'Submission failed' toast in preview is expected. Mobile hamburger (data-testid: mobile-menu-toggle) toggles fine. 3 fallback YouTube iframes render since REACT_APP_SHEET_ID unset. Default contact info shown as expected.",
+  "verified_checklist": {
+    "landing_200_no_js_errors": true,
+    "hero_wordmark_tagline_pills_buttons": true,
+    "all_sections_render_in_order": true,
+    "contact_defaults_shown": true,
+    "empty_form_no_crash": true,
+    "empty_form_shows_sonner_toast": false,
+    "filled_form_graceful_error_toast": true,
+    "no_admin_link_in_footer": true,
+    "admin_route_renders_landing": true,
+    "mobile_hamburger_toggles": true,
+    "testimonials_carousel_prev_next_dots": true,
+    "youtube_fallback_iframes_present": true
+  }
+}

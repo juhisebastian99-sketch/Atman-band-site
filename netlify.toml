@@ -1,8 +1,17 @@
 [build]
   base = "frontend"
   publish = "build"
-  command = "yarn build"
+  command = "yarn install && yarn build"
 
+[build.environment]
+  NODE_VERSION = "20"
+  CI = "false"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# SPA fallback for React Router — MUST be last redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"

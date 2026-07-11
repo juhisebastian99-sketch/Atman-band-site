@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
 import { toast } from "sonner";
 import { Send, Loader2, Calendar as CalendarIcon } from "lucide-react";
 import {
@@ -14,8 +13,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
 import { useSiteSettings } from "@/hooks/useSiteData";
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const EVENT_TYPES = [
   "Luxury Wedding",
@@ -37,6 +34,13 @@ const initial = {
   message: "",
 };
 
+const encode = (data) =>
+  Object.keys(data)
+    .map(
+      (k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? "")
+    )
+    .join("&");
+
 export const Booking = () => {
   const settings = useSiteSettings();
   const [form, setForm] = useState(initial);
@@ -53,20 +57,29 @@ export const Booking = () => {
     setSubmitting(true);
     try {
       const payload = {
-        ...form,
+        "form-name": "booking",
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        event_type: form.event_type,
         event_date: form.event_date
           ? format(form.event_date, "yyyy-MM-dd")
-          : null,
+          : "",
+        guest_count: form.guest_count,
+        location: form.location,
+        message: form.message,
+        submitted_at: new Date().toISOString(),
       };
-      await axios.post(`${API}/bookings`, payload);
+      const res = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode(payload),
+      });
+      if (!res.ok) throw new Error("Submission failed");
       toast.success("Inquiry received. Our team will reach out shortly.");
       setForm(initial);
     } catch (err) {
-      const msg =
-        err?.response?.data?.detail?.[0]?.msg ||
-        err?.response?.data?.detail ||
-        "Something went wrong. Please try again.";
-      toast.error(typeof msg === "string" ? msg : "Submission failed");
+      toast.error(err?.message || "Submission failed. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -126,11 +139,24 @@ export const Booking = () => {
             transition={{ duration: 0.9, delay: 0.1 }}
             className="lg:col-span-7 bg-[#1a1a1a] border border-[#C9A227]/15 p-8 lg:p-12"
             data-testid="booking-form"
+            name="booking"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
           >
+            {/* Netlify Forms hidden fields */}
+            <input type="hidden" name="form-name" value="booking" />
+            <p className="hidden">
+              <label>
+                Don&apos;t fill this out: <input name="bot-field" />
+              </label>
+            </p>
+
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Name</label>
                 <input
+                  name="name"
                   value={form.name}
                   onChange={(e) => update("name", e.target.value)}
                   placeholder="Your full name"
@@ -143,6 +169,7 @@ export const Booking = () => {
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Email</label>
                 <input
                   type="email"
+                  name="email"
                   value={form.email}
                   onChange={(e) => update("email", e.target.value)}
                   placeholder="you@example.com"
@@ -154,6 +181,7 @@ export const Booking = () => {
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Phone</label>
                 <input
+                  name="phone"
                   value={form.phone}
                   onChange={(e) => update("phone", e.target.value)}
                   placeholder="+91 98765 43210"
@@ -164,6 +192,7 @@ export const Booking = () => {
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Event Type</label>
+                <input type="hidden" name="event_type" value={form.event_type} />
                 <Select
                   value={form.event_type}
                   onValueChange={(v) => update("event_type", v)}
@@ -189,6 +218,11 @@ export const Booking = () => {
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Event Date</label>
+                <input
+                  type="hidden"
+                  name="event_date"
+                  value={form.event_date ? format(form.event_date, "yyyy-MM-dd") : ""}
+                />
                 <Popover>
                   <PopoverTrigger asChild>
                     <button
@@ -220,6 +254,7 @@ export const Booking = () => {
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Guest Count</label>
                 <input
+                  name="guest_count"
                   value={form.guest_count}
                   onChange={(e) => update("guest_count", e.target.value)}
                   placeholder="e.g. 200"
@@ -230,6 +265,7 @@ export const Booking = () => {
               <div className="sm:col-span-2">
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Venue / Location</label>
                 <input
+                  name="location"
                   value={form.location}
                   onChange={(e) => update("location", e.target.value)}
                   placeholder="City, venue or destination"
@@ -240,6 +276,7 @@ export const Booking = () => {
               <div className="sm:col-span-2">
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Your Vision</label>
                 <textarea
+                  name="message"
                   value={form.message}
                   onChange={(e) => update("message", e.target.value)}
                   placeholder="Tell us about your event, preferred genres, mood…"
