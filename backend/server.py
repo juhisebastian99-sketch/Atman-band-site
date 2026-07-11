@@ -27,8 +27,8 @@ JWT_SECRET = os.environ['JWT_SECRET']
 JWT_ALG = "HS256"
 TOKEN_EXPIRY_DAYS = 7
 
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@atman.co').lower().strip()
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Atman@2026')
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin').strip()
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin')
 
 app = FastAPI(title="ATMAN Live Music API")
 api_router = APIRouter(prefix="/api")
@@ -93,7 +93,7 @@ class BookingInquiry(BookingInquiryCreate):
 
 
 class LoginPayload(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 
@@ -160,12 +160,12 @@ async def list_videos():
 # ---------- Admin routes ----------
 @api_router.post("/admin/login")
 async def admin_login(payload: LoginPayload):
-    email = payload.email.lower().strip()
-    user = await db.admin_users.find_one({"email": email})
+    username = payload.username.strip()
+    user = await db.admin_users.find_one({"username": username})
     if not user or not verify_password(payload.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    token = create_token(email)
-    return {"token": token, "email": email, "role": "admin"}
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    token = create_token(username)
+    return {"token": token, "username": username, "role": "admin"}
 
 
 @api_router.get("/admin/me")
@@ -250,22 +250,25 @@ DEFAULT_VIDEOS = [
 
 @app.on_event("startup")
 async def on_startup():
+    # Migrate: drop any legacy admin_users docs that used the old email schema
+    await db.admin_users.delete_many({"username": {"$exists": False}})
+
     # Seed admin (idempotent). If env password changed, update the hash.
-    existing = await db.admin_users.find_one({"email": ADMIN_EMAIL})
+    existing = await db.admin_users.find_one({"username": ADMIN_USERNAME})
     if not existing:
         await db.admin_users.insert_one({
-            "email": ADMIN_EMAIL,
+            "username": ADMIN_USERNAME,
             "password_hash": hash_password(ADMIN_PASSWORD),
             "role": "admin",
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
-        logger.info(f"Seeded admin user: {ADMIN_EMAIL}")
+        logger.info(f"Seeded admin user: {ADMIN_USERNAME}")
     elif not verify_password(ADMIN_PASSWORD, existing["password_hash"]):
         await db.admin_users.update_one(
-            {"email": ADMIN_EMAIL},
+            {"username": ADMIN_USERNAME},
             {"$set": {"password_hash": hash_password(ADMIN_PASSWORD)}},
         )
-        logger.info(f"Updated admin password for: {ADMIN_EMAIL}")
+        logger.info(f"Updated admin password for: {ADMIN_USERNAME}")
 
     # Seed default videos ONCE if empty
     count = await db.videos.count_documents({})

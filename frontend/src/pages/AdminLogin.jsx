@@ -8,16 +8,16 @@ import AtmanLogo from "@/components/AtmanLogo";
 
 export default function AdminLogin() {
   const nav = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!email || !password) return toast.error("Please enter email & password.");
+    if (!username || !password) return toast.error("Please enter username & password.");
     setLoading(true);
     try {
-      const { data } = await api.post("/admin/login", { email, password });
+      const { data } = await api.post("/admin/login", { username, password });
       setToken(data.token);
       toast.success("Welcome back.");
       nav("/admin/dashboard", { replace: true });
@@ -63,14 +63,14 @@ export default function AdminLogin() {
 
           <div className="mt-8 space-y-6">
             <div>
-              <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Email</label>
+              <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Username</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@atman.co"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Your admin username"
                 autoComplete="username"
-                data-testid="admin-email"
+                data-testid="admin-username"
                 className="w-full bg-transparent border-b border-[#C9A227]/25 focus:border-[#C9A227] outline-none py-3 text-[#F8F6F2] placeholder:text-[#F8F6F2]/40 text-sm"
                 required
               />
