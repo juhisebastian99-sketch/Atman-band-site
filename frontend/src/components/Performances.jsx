@@ -1,25 +1,17 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useVideos } from "@/hooks/useSiteData";
 
-const videos = [
-  {
-    id: "5qap5aO4i9A", // placeholder embed id — client can swap
-    title: "Sufi Evening · Live Set",
-    subtitle: "Palace Wedding · Udaipur",
-  },
-  {
-    id: "jfKfPfyJRdk",
-    title: "Bollywood Anthems Medley",
-    subtitle: "Sangeet Night · Mumbai",
-  },
-  {
-    id: "DWcJFNfaw9c",
-    title: "Rock Finale · Encore",
-    subtitle: "Corporate Gala · Bengaluru",
-  },
+const FALLBACK = [
+  { id: "f1", youtube_id: "5qap5aO4i9A", title: "Sufi Evening · Live Set", subtitle: "Palace Wedding · Udaipur" },
+  { id: "f2", youtube_id: "jfKfPfyJRdk", title: "Bollywood Anthems Medley", subtitle: "Sangeet Night · Mumbai" },
+  { id: "f3", youtube_id: "DWcJFNfaw9c", title: "Rock Finale · Encore", subtitle: "Corporate Gala · Bengaluru" },
 ];
 
 export const Performances = () => {
+  const fetched = useVideos();
+  const videos = fetched.length ? fetched : FALLBACK;
+
   return (
     <section
       id="performances"
@@ -41,7 +33,7 @@ export const Performances = () => {
         <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {videos.map((v, i) => (
             <motion.div
-              key={v.id}
+              key={v.id || v.youtube_id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -52,16 +44,18 @@ export const Performances = () => {
               <div className="relative aspect-video overflow-hidden border border-[#C9A227]/20 bg-black shadow-[0_0_0_rgba(201,162,39,0)] group-hover:shadow-[0_0_40px_rgba(201,162,39,0.25)] transition-shadow duration-500">
                 <iframe
                   className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${v.id}?rel=0&modestbranding=1`}
+                  src={`https://www.youtube.com/embed/${v.youtube_id}?rel=0&modestbranding=1`}
                   title={v.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
               <div className="mt-5">
-                <div className="text-[0.6rem] tracking-[0.3em] uppercase text-[#C9A227]">
-                  {v.subtitle}
-                </div>
+                {v.subtitle && (
+                  <div className="text-[0.6rem] tracking-[0.3em] uppercase text-[#C9A227]">
+                    {v.subtitle}
+                  </div>
+                )}
                 <h3 className="mt-2 font-cinzel text-lg text-[#F8F6F2] tracking-wide">
                   {v.title}
                 </h3>

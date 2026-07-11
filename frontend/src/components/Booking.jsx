@@ -13,6 +13,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
+import { useSiteSettings } from "@/hooks/useSiteData";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -37,6 +38,7 @@ const initial = {
 };
 
 export const Booking = () => {
+  const settings = useSiteSettings();
   const [form, setForm] = useState(initial);
   const [submitting, setSubmitting] = useState(false);
 
@@ -102,15 +104,15 @@ export const Booking = () => {
             <div className="mt-10 space-y-4 text-sm">
               <div className="flex gap-4 items-start">
                 <div className="text-[#C9A227] text-xs tracking-[0.3em] uppercase w-24">Reach us</div>
-                <div className="text-[#F8F6F2]/75">hello@atmanmusic.co</div>
+                <div className="text-[#F8F6F2]/75 break-all">{settings.email}</div>
               </div>
               <div className="flex gap-4 items-start">
                 <div className="text-[#C9A227] text-xs tracking-[0.3em] uppercase w-24">Call</div>
-                <div className="text-[#F8F6F2]/75">+91 · placeholder</div>
+                <div className="text-[#F8F6F2]/75">{settings.phone}</div>
               </div>
               <div className="flex gap-4 items-start">
                 <div className="text-[#C9A227] text-xs tracking-[0.3em] uppercase w-24">Based in</div>
-                <div className="text-[#F8F6F2]/75">Mumbai · Travelling worldwide</div>
+                <div className="text-[#F8F6F2]/75">{settings.location}</div>
               </div>
             </div>
           </motion.div>
