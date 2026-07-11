@@ -1,0 +1,39 @@
+{
+  "summary": "Latency-first smoke test on ATMAN MVP. Backend (5/5) endpoints pass. Frontend hero, scroll-to-section, performances iframes (3), testimonials carousel prev/next + dots, booking submission (verified persisted in DB), and mobile menu all pass. Two minor observations noted.",
+  "tested_scope": ["backend", "frontend", "integration"],
+  "passed": [
+    "GET /api/ -> 200 with welcome message",
+    "POST /api/bookings valid payload -> 201 with id + created_at",
+    "POST /api/bookings invalid email -> 422",
+    "POST /api/bookings missing required fields -> 422",
+    "GET /api/bookings -> 200, list sorted latest first (verified Ada Lovelace top after submit)",
+    "Hero loads: ATMAN wordmark, tagline 'Music That Touches The Soul', 3 genre pills (Bollywood/Sufi/Rock), Book & Watch buttons visible",
+    "Hero 'Book ATMAN' scrolls to #booking",
+    "Hero 'Watch Performances' scrolls to #performances",
+    "Performances section renders 3 YouTube iframes",
+    "Testimonials next button cycles quote; dot indicator (testimonial-dot-2) changes quote",
+    "Booking form: filled all fields, selected event type (Luxury Wedding), submitted -> form cleared and new entry appears in GET /api/bookings",
+    "Mobile viewport (390x844): nav-menu-toggle opens menu with 8 mobile links; clicking mobile link navigates"
+  ],
+  "failed": [
+    {
+      "area": "frontend/booking date picker",
+      "issue": "Selector [role='gridcell'] button did not match shadcn Calendar day cells within timeout; could not automate date selection. Submission still succeeded because event_date is optional. Needs verification whether Calendar exposes accessible day buttons for users/tests.",
+      "evidence": "Playwright: 'Locator.click: Timeout 3000ms exceeded — waiting for locator(\"[role=\\\"gridcell\\\"] button:not([disabled])\").first' after clicking booking-date-btn.",
+      "priority": "LOW"
+    },
+    {
+      "area": "frontend/toast feedback",
+      "issue": "Toast confirmation text was not captured via [role=status]/[class*=toast] selectors after successful and invalid-email submits. Success is confirmed indirectly (form cleared + backend record). For invalid email, no visible error text was captured either — user feedback for invalid email may be missing or rendered via a different mechanism (e.g., Sonner portal outside queried nodes).",
+      "evidence": "toast_text=''; toast2='' in both success and invalid-email flows.",
+      "priority": "MEDIUM"
+    }
+  ],
+  "action_items": [
+    "Verify user-visible toast is rendered on successful submit and on invalid-email submit (likely using Sonner). If using Sonner, ensure a toast.error is shown when email validation fails client-side or when backend returns 422.",
+    "Optionally add data-testid on calendar day buttons (e.g., data-testid=calendar-day) to make date selection testable; not blocking since field is optional."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "~90%"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}

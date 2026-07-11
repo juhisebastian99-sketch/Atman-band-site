@@ -1,40 +1,34 @@
-import { useEffect } from "react";
+import React from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-import { HOME } from "@/constants/testIds";
+import { Toaster } from "sonner";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import Services from "@/components/Services";
+import Genres from "@/components/Genres";
+import Performances from "@/components/Performances";
+import Gallery from "@/components/Gallery";
+import Testimonials from "@/components/Testimonials";
+import Booking from "@/components/Booking";
+import Footer from "@/components/Footer";
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
+const Landing = () => {
   return (
-    <div>
-      <header className="App-header">
-        <a
-          data-testid={HOME.emergentLink}
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="min-h-screen bg-[#121212] text-[#F8F6F2] font-poppins" data-testid="landing-page">
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <Services />
+        <Genres />
+        <Performances />
+        <Gallery />
+        <Testimonials />
+        <Booking />
+      </main>
+      <Footer />
     </div>
   );
 };
@@ -44,11 +38,21 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={<Landing />} />
         </Routes>
       </BrowserRouter>
+      <Toaster
+        position="top-right"
+        theme="dark"
+        toastOptions={{
+          style: {
+            background: "#1a1a1a",
+            border: "1px solid rgba(201,162,39,0.3)",
+            color: "#F8F6F2",
+            fontFamily: "Poppins, sans-serif",
+          },
+        }}
+      />
     </div>
   );
 }
