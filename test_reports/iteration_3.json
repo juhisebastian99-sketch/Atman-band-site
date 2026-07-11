@@ -1,0 +1,23 @@
+{
+  "summary": "Verified fix for admin login loop bug. require_admin now correctly queries admin_users by 'username' matching JWT sub. 12/12 backend pytest cases passed and full frontend E2E flow (login → dashboard → tab switch → reload) works with 0 x 401 responses.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py L50 create_token param is named 'email' but now stores username in sub — rename for clarity.",
+    "No brute-force lockout on /api/admin/login (playbook item). Consider rate limiting or 5-fail lockout if hardening required.",
+    "CORS uses allow_credentials=True with allow_origins='*' fallback — will be rejected by browsers. Set explicit origins in production.",
+    "Login response returns raw JWT in body only (no httpOnly cookie). Frontend stores in localStorage — XSS-exposed. Acceptable for admin-only tool but note it.",
+    "@app.on_event('startup'/'shutdown') is deprecated in FastAPI; migrate to lifespan handlers.",
+    "server.py is ~290 lines — fine, but if it grows further, split routes and models."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin username=Ashutosh12 password=Ashutosh12",
+  "seed_data_creation": "None (startup seeder handles admin + default videos idempotently). Test creates a TEST_ video that is cleaned up in same test.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend uses username-based admin auth. JWT sub = username. Bug (require_admin querying by 'email') is fixed and verified via /api/admin/me + /api/admin/bookings tests. Frontend AdminLogin uses data-testid admin-username / admin-password / admin-login-submit. Token key in localStorage = 'atman_admin_token'.",
+  "rca of the issue": "require_admin was querying db.admin_users.find_one({'email': payload['sub']}) but the seeder now writes {'username': ...}. Every authenticated request thus hit 'User not found' → 401 → axios interceptor cleared token and redirected to /admin, appearing as a login loop. Fix: query by {'username': payload['sub']}. Verified with 12 passing backend tests and clean E2E."
+}

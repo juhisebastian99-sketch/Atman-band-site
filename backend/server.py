@@ -64,10 +64,10 @@ async def require_admin(creds: HTTPAuthorizationCredentials = Depends(security))
         payload = jwt.decode(creds.credentials, JWT_SECRET, algorithms=[JWT_ALG])
         if payload.get("role") != "admin":
             raise HTTPException(status_code=403, detail="Forbidden")
-        user = await db.admin_users.find_one({"email": payload["sub"]})
+        user = await db.admin_users.find_one({"username": payload["sub"]})
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
-        return {"email": payload["sub"], "role": "admin"}
+        return {"username": payload["sub"], "role": "admin"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
