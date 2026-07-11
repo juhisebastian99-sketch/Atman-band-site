@@ -1,0 +1,109 @@
+{
+  "theme": "dark",
+  "brand": {
+    "name": "ATMAN",
+    "description": "Luxury live music band for high-end weddings, destination weddings, corporate events, and private celebrations.",
+    "tone": "Cinematic, elegant, modern, soulful, premium luxury"
+  },
+  "colors": {
+    "background": "#121212",
+    "surface": "#1E1E1E",
+    "primary": "#C9A227",
+    "text_main": "#F8F6F2",
+    "text_muted": "rgba(248, 246, 242, 0.7)",
+    "border": "rgba(201, 162, 39, 0.2)",
+    "overlay": "rgba(18, 18, 18, 0.6)",
+    "glass": "rgba(18, 18, 18, 0.75)"
+  },
+  "typography": {
+    "headings": {
+      "family": "Cinzel, serif",
+      "weights": ["400", "500", "600", "700"],
+      "h1": "text-5xl sm:text-6xl lg:text-7xl tracking-tighter uppercase",
+      "h2": "text-3xl sm:text-4xl lg:text-5xl tracking-tight uppercase",
+      "h3": "text-2xl sm:text-3xl tracking-tight",
+      "label": "text-sm tracking-[0.2em] uppercase font-semibold text-[#C9A227]"
+    },
+    "body": {
+      "family": "Poppins, sans-serif",
+      "weights": ["300", "400", "500"],
+      "base": "text-base lg:text-lg leading-relaxed text-[#F8F6F2]/80",
+      "small": "text-sm leading-relaxed text-[#F8F6F2]/60"
+    }
+  },
+  "layouts": {
+    "spacing": "Generous spacing. Use py-24 to py-32 for section padding. gap-8 to gap-12 for grids.",
+    "container": "max-w-7xl mx-auto px-6 lg:px-12",
+    "grid": "Bento or asymmetric grids for Gallery and Services. Break standard symmetry to create a high-end editorial feel.",
+    "cards": "Minimalist dark cards (bg-[#1E1E1E]), sharp edges (rounded-none or max rounded-sm), subtle 1px border of #C9A227/20."
+  },
+  "visual_enhancers": {
+    "glassmorphism": "For sticky navbar: backdrop-blur-xl bg-[#121212]/75 border-b border-[#C9A227]/20. DO NOT use fully transparent backgrounds anywhere over images.",
+    "glow_effects": "Gold CTAs should have a soft ambient glow: shadow-[0_0_20px_rgba(201,162,39,0.3)] hover:shadow-[0_0_30px_rgba(201,162,39,0.6)].",
+    "overlays": "Use gradient overlays on background images: bg-gradient-to-b from-[#121212]/40 via-[#121212]/70 to-[#121212] to ensure text contrast."
+  },
+  "motion": {
+    "hero": "Subtle scale-up animation on the background image (1.05 to 1.0 over 10s). Slow fade-up for headings.",
+    "scroll": "Parallax effect on hero and about images. Staggered fade-up for services cards using framer-motion.",
+    "hover": "Images in gallery should scale up slightly (scale-105) with long duration (duration-500). Buttons pulse and increase glow."
+  },
+  "components": {
+    "navbar": "Sticky, glassmorphism, logo on left (elegant 'A' and 'ATMAN'), links center, CTA right. Must have data-testid attributes.",
+    "hero": "Full height (min-h-screen). Background image of drumset with gold lights. Overlay to ensure text readability. 'Music That Touches The Soul'. Pill-shaped genre indicators (Bollywood, Sufi, Rock) floating elegantly. Animated scroll indicator at bottom.",
+    "buttons": {
+      "primary": "bg-[#C9A227] text-[#121212] font-semibold py-3 px-8 rounded-full shadow-[0_0_15px_rgba(201,162,39,0.4)] hover:shadow-[0_0_25px_rgba(201,162,39,0.8)] transition-all",
+      "secondary": "bg-transparent border border-[#C9A227] text-[#C9A227] py-3 px-8 rounded-full hover:bg-[#C9A227]/10 transition-colors"
+    },
+    "services_cards": "Dark background (#1E1E1E), sharp edges, gold accents on hover. Layout: 1x4 or 2x2 grid.",
+    "genres_section": "Elegant cards or large pills for Bollywood, Sufi, and Rock genres. Use typography and subtle borders.",
+    "gallery": "Masonry or Bento grid of premium instrument shots. Strictly no faces.",
+    "performances": "Clean YouTube embedded iframes with subtle gold borders or glow.",
+    "booking_form": "Minimalist inputs with bottom borders only, or dark filled inputs with gold focus rings. focus:ring-[#C9A227]. Submit button should have gold glow.",
+    "testimonials": "Elegant carousel with gold quotation marks. High contrast text.",
+    "footer": "Tasteful, minimalistic. Contact placeholders and social links (Instagram/YouTube)."
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "https://images.pexels.com/photos/7551983/pexels-photo-7551983.jpeg",
+      "description": "Dramatic backlit drum set on stage with golden lighting."
+    },
+    "about_image": {
+      "url": "https://images.pexels.com/photos/7715356/pexels-photo-7715356.jpeg",
+      "description": "Close up of an acoustic guitar in warm, dramatic lighting."
+    },
+    "gallery_1": {
+      "url": "https://images.unsplash.com/photo-1689506422730-6a8e09038b1b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwyfHxwaWFubyUyMGRhcmslMjBsaWdodGluZyUyMGNpbmVtYXRpY3xlbnwwfHx8fDE3ODIyODQ0MDV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Close up of a piano in cinematic dark lighting."
+    },
+    "gallery_2": {
+      "url": "https://images.unsplash.com/photo-1453090927415-5f45085b65c0",
+      "description": "Microphone on foggy stage."
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use framer-motion for all scroll and entrance animations.",
+    "Import Google Fonts: Cinzel and Poppins.",
+    "Ensure contrast is high between text and backgrounds. Use gradient overlays on background images.",
+    "DO NOT use generic icons for the logo. Style the letter 'A' elegantly with Cinzel font.",
+    "DO NOT use placeholder images. Use only the provided image_urls. If more are needed, reuse them creatively or build UI without imagery.",
+    "For the YouTube performances, use clean embedded iframes with subtle gold borders or shadows.",
+    "DO NOT make backgrounds fully transparent under text. Use glassmorphism or dark overlays.",
+    "Ensure to include `data-testid` on all buttons, links, and form inputs for testing.",
+    "You are working with .js files, NOT .tsx files. Use standard React JSX syntax without TypeScript.",
+    "Use lucide-react for essential icons (like scroll arrows or social media)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Avoid generic, 'on distribution' outputs. Make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts. Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: transition: all. Always add transitions for specific interactive elements.",
+    "You MUST NOT center align the app container. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Use sonner for toasts, typically imported from components/ui/sonner."
+  ]
+}
