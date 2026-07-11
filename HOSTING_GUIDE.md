@@ -1,101 +1,53 @@
-# ATMAN — Netlify Hosting Guide (Free · No Backend)
+# ATMAN — Netlify Hosting Guide (Free Forever)
 
-Everything is now static + Netlify Forms + Google Sheets. Nothing to pay for.
+Full-stack site on Netlify **at $0/month**, with your admin panel intact.
 
-## What lives where
+## What's included
+- Public site (React) → Netlify CDN
+- API (login, settings, videos, bookings) → **Netlify Functions** (125k requests/month free)
+- Storage → **Netlify Blobs** (free, no external DB)
+- Admin panel at `/admin` — login **Ashutosh12 / Ashutosh12** (change anytime via env vars)
 
-| Piece | Where | Who edits |
-|---|---|---|
-| Website design & pages | Netlify (static) | Developer |
-| Contact info & videos | **Google Sheet** | **You** |
-| Booking inquiries | **Netlify Forms** | Read by you in Netlify dashboard + email |
+## Step-by-step deployment
 
----
+### 1) Push to GitHub
+- Click **Save to GitHub** in Emergent (top-right) → pick / create a repo.
 
-## 1) Create your Google Sheet (the "admin panel")
-
-1. Open a new Google Sheet: https://sheets.new
-2. Rename it → e.g. `ATMAN Site Content`
-3. Rename the first tab (bottom-left) to **`settings`** (exactly, lowercase)
-4. In the `settings` tab paste these column headers in row 1:
-
-   | email | phone | location | instagram | youtube | spotify | whatsapp | hero_tagline | hero_subline |
-
-5. Fill **row 2** with your actual values. Example:
-
-   | hello@atmanmusic.co | +91 98765 43210 | Mumbai · Available worldwide | https://instagram.com/atman | https://youtube.com/@atman |  | https://wa.me/919876543210 | Music That Touches The Soul | Luxury Live Music for Weddings, Destination Weddings, Corporate Events & Private Celebrations. |
-
-6. Create a **second tab** named **`videos`** with these headers in row 1:
-
-   | youtube_id | title | subtitle | order |
-
-7. Add one row per performance video. Example:
-
-   | 5qap5aO4i9A | Sufi Evening · Live Set | Palace Wedding · Udaipur | 1 |
-   | jfKfPfyJRdk | Bollywood Anthems Medley | Sangeet Night · Mumbai | 2 |
-
-   *(The `youtube_id` is the code after `v=` in a YouTube URL. Order controls display order — lower first.)*
-
-8. **File → Share → Publish to web** → click **Publish**
-9. Also **Share → Anyone with the link → Viewer**
-10. Copy the **Sheet ID** from the URL. The URL looks like:
-    `https://docs.google.com/spreadsheets/d/`**`1AbC...XyZ`**`/edit#gid=0`
-    The bold part is the **Sheet ID**.
-
-Whenever you edit the sheet and save, the website updates within a few seconds on next visit. No redeploy needed.
-
----
-
-## 2) Push code to GitHub
-
-You'll need a GitHub repo. From Emergent: click **Save to GitHub** (top-right) and pick / create a repo.
-
----
-
-## 3) Deploy on Netlify
-
+### 2) Create Netlify site
 1. Go to https://app.netlify.com → **Add new site → Import an existing project**
 2. Connect GitHub → pick your ATMAN repo
-3. Netlify auto-detects `netlify.toml`. Confirm:
-   - **Base directory:** `frontend`
-   - **Build command:** `yarn install && yarn build`
-   - **Publish directory:** `build`
-4. Click **Show advanced → New variable** and add:
+3. Netlify auto-reads `netlify.toml`. Confirm:
+   - Base directory: (leave blank / repo root)
+   - Build command: `cd frontend && yarn install && yarn build`
+   - Publish directory: `frontend/build`
+4. Click **Show advanced → New variable** and add these 3 environment variables:
    ```
-   REACT_APP_SHEET_ID = <paste your Google Sheet ID from step 1>
+   ADMIN_USERNAME = Ashutosh12
+   ADMIN_PASSWORD = Ashutosh12
+   JWT_SECRET     = any-long-random-string-at-least-32-characters
    ```
 5. Click **Deploy site** — takes ~3-5 minutes
-6. Once live, copy your Netlify URL (e.g. `https://atman-band-a1b2.netlify.app`)
+6. Copy the site URL (e.g. `https://atman-band-abcd.netlify.app`)
 
-Netlify auto-provisions free HTTPS.
+### 3) You're live
+- **Public site:** `https://<your-site>.netlify.app`
+- **Admin panel:** `https://<your-site>.netlify.app/admin`
+  - Log in with `Ashutosh12` / `Ashutosh12`
+  - Update contact, socials, videos — changes reflect instantly on the public site (~2 second cache)
+  - View incoming booking inquiries in the **Inquiries** tab
+- **Discrete admin link:** small lock icon in the site footer
 
----
+### 4) Custom domain (optional, still free)
+Netlify → your site → **Domain management → Add custom domain** → enter `atmanmusic.com` (or any domain you own) → follow DNS instructions. Free HTTPS auto-provisioned.
 
-## 4) Booking inquiries (Netlify Forms — automatic)
+## Changing your admin password later
+Netlify → site → **Site settings → Environment variables** → change `ADMIN_PASSWORD` → redeploy (Deploys → Trigger deploy). The next login uses the new password.
 
-Nothing to configure — the form is already wired.
+## Free-tier limits (way more than a band needs)
+| Piece | Free | Typical use |
+|---|---|---|
+| Netlify bandwidth | 100 GB / month | ~10,000 site visits |
+| Netlify Functions | 125,000 requests / month | ~1,000 admin edits + 10,000 page loads |
+| Netlify Blobs | Generous (unlimited on personal plan) | Booking inquiries, settings, videos |
 
-- When a customer submits, Netlify captures it.
-- **View submissions:** Netlify dashboard → your site → **Forms** tab → **booking**
-- **Email notifications:** Netlify dashboard → **Forms → Settings & usage → Form notifications → Add notification → Email notification**
-  - Enter your email — you'll now get an alert every time someone books.
-
-Free tier: **100 submissions/month** (plenty for a band's inquiries).
-
----
-
-## 5) Custom domain (optional, still free)
-
-Netlify → your site → **Domain settings → Add custom domain** → enter e.g. `atmanmusic.com` → follow the DNS instructions.
-
-Netlify automatically provisions a free HTTPS certificate for your custom domain.
-
----
-
-## Daily use
-
-- **Change contact info / phone / socials** → edit the Google Sheet → refresh site
-- **Add / edit / delete videos** → edit rows in the `videos` tab → refresh site
-- **See new booking inquiries** → Netlify dashboard → Forms tab (and via email if you enabled notifications)
-
-That's it. No servers to manage, no database to worry about, no monthly bill.
+No credit card required. No auto-billing. No surprises.

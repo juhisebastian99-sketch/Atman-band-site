@@ -12,6 +12,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
+import { api, formatApiError } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteData";
 
 const EVENT_TYPES = [
@@ -34,13 +35,6 @@ const initial = {
   message: "",
 };
 
-const encode = (data) =>
-  Object.keys(data)
-    .map(
-      (k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k] ?? "")
-    )
-    .join("&");
-
 export const Booking = () => {
   const settings = useSiteSettings();
   const [form, setForm] = useState(initial);
@@ -57,29 +51,14 @@ export const Booking = () => {
     setSubmitting(true);
     try {
       const payload = {
-        "form-name": "booking",
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        event_type: form.event_type,
-        event_date: form.event_date
-          ? format(form.event_date, "yyyy-MM-dd")
-          : "",
-        guest_count: form.guest_count,
-        location: form.location,
-        message: form.message,
-        submitted_at: new Date().toISOString(),
+        ...form,
+        event_date: form.event_date ? format(form.event_date, "yyyy-MM-dd") : null,
       };
-      const res = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encode(payload),
-      });
-      if (!res.ok) throw new Error("Submission failed");
+      await api.post("/bookings", payload);
       toast.success("Inquiry received. Our team will reach out shortly.");
       setForm(initial);
     } catch (err) {
-      toast.error(err?.message || "Submission failed. Please try again.");
+      toast.error(formatApiError(err));
     } finally {
       setSubmitting(false);
     }
@@ -96,7 +75,6 @@ export const Booking = () => {
     >
       <div className="max-w-6xl mx-auto px-6 lg:px-12">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
-          {/* Left copy */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -130,7 +108,6 @@ export const Booking = () => {
             </div>
           </motion.div>
 
-          {/* Form */}
           <motion.form
             onSubmit={handleSubmit}
             initial={{ opacity: 0, y: 24 }}
@@ -139,60 +116,42 @@ export const Booking = () => {
             transition={{ duration: 0.9, delay: 0.1 }}
             className="lg:col-span-7 bg-[#1a1a1a] border border-[#C9A227]/15 p-8 lg:p-12"
             data-testid="booking-form"
-            name="booking"
-            method="POST"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
+            noValidate
           >
-            {/* Netlify Forms hidden fields */}
-            <input type="hidden" name="form-name" value="booking" />
-            <p className="hidden">
-              <label>
-                Don&apos;t fill this out: <input name="bot-field" />
-              </label>
-            </p>
-
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Name</label>
                 <input
-                  name="name"
                   value={form.name}
                   onChange={(e) => update("name", e.target.value)}
                   placeholder="Your full name"
                   className={inputCls}
                   data-testid="booking-name"
-                  required
                 />
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Email</label>
                 <input
                   type="email"
-                  name="email"
                   value={form.email}
                   onChange={(e) => update("email", e.target.value)}
                   placeholder="you@example.com"
                   className={inputCls}
                   data-testid="booking-email"
-                  required
                 />
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Phone</label>
                 <input
-                  name="phone"
                   value={form.phone}
                   onChange={(e) => update("phone", e.target.value)}
                   placeholder="+91 98765 43210"
                   className={inputCls}
                   data-testid="booking-phone"
-                  required
                 />
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Event Type</label>
-                <input type="hidden" name="event_type" value={form.event_type} />
                 <Select
                   value={form.event_type}
                   onValueChange={(v) => update("event_type", v)}
@@ -205,11 +164,7 @@ export const Booking = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-[#1a1a1a] border-[#C9A227]/25 text-[#F8F6F2]">
                     {EVENT_TYPES.map((t) => (
-                      <SelectItem
-                        key={t}
-                        value={t}
-                        className="focus:bg-[#C9A227]/15 focus:text-[#F8F6F2]"
-                      >
+                      <SelectItem key={t} value={t} className="focus:bg-[#C9A227]/15 focus:text-[#F8F6F2]">
                         {t}
                       </SelectItem>
                     ))}
@@ -218,11 +173,6 @@ export const Booking = () => {
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Event Date</label>
-                <input
-                  type="hidden"
-                  name="event_date"
-                  value={form.event_date ? format(form.event_date, "yyyy-MM-dd") : ""}
-                />
                 <Popover>
                   <PopoverTrigger asChild>
                     <button
@@ -231,30 +181,19 @@ export const Booking = () => {
                       className={`${inputCls} flex items-center justify-between text-left`}
                     >
                       <span className={form.event_date ? "text-[#F8F6F2]" : "text-[#F8F6F2]/40"}>
-                        {form.event_date
-                          ? format(form.event_date, "PPP")
-                          : "Pick a date"}
+                        {form.event_date ? format(form.event_date, "PPP") : "Pick a date"}
                       </span>
                       <CalendarIcon size={16} className="text-[#C9A227]" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0 bg-[#1a1a1a] border border-[#C9A227]/25 text-[#F8F6F2]"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={form.event_date}
-                      onSelect={(d) => update("event_date", d)}
-                      initialFocus
-                    />
+                  <PopoverContent className="w-auto p-0 bg-[#1a1a1a] border border-[#C9A227]/25 text-[#F8F6F2]" align="start">
+                    <Calendar mode="single" selected={form.event_date} onSelect={(d) => update("event_date", d)} initialFocus />
                   </PopoverContent>
                 </Popover>
               </div>
               <div>
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Guest Count</label>
                 <input
-                  name="guest_count"
                   value={form.guest_count}
                   onChange={(e) => update("guest_count", e.target.value)}
                   placeholder="e.g. 200"
@@ -265,7 +204,6 @@ export const Booking = () => {
               <div className="sm:col-span-2">
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Venue / Location</label>
                 <input
-                  name="location"
                   value={form.location}
                   onChange={(e) => update("location", e.target.value)}
                   placeholder="City, venue or destination"
@@ -276,7 +214,6 @@ export const Booking = () => {
               <div className="sm:col-span-2">
                 <label className="text-[0.65rem] tracking-[0.3em] uppercase text-[#C9A227]">Your Vision</label>
                 <textarea
-                  name="message"
                   value={form.message}
                   onChange={(e) => update("message", e.target.value)}
                   placeholder="Tell us about your event, preferred genres, mood…"
@@ -307,8 +244,7 @@ export const Booking = () => {
                 )}
               </button>
               <p className="mt-4 text-[0.7rem] text-[#F8F6F2]/45">
-                By submitting, you agree to be contacted by the ATMAN team
-                regarding your inquiry.
+                By submitting, you agree to be contacted by the ATMAN team regarding your inquiry.
               </p>
             </div>
           </motion.form>

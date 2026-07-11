@@ -1,5 +1,6 @@
 import React from "react";
-import { Instagram, Youtube, Music2, Mail, MessageCircle } from "lucide-react";
+import { Instagram, Youtube, Music2, Mail, MessageCircle, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 import AtmanLogo from "./AtmanLogo";
 import { useSiteSettings } from "@/hooks/useSiteData";
 
@@ -95,8 +96,19 @@ export const Footer = () => {
       <div className="border-t border-[#C9A227]/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[0.7rem] text-[#F8F6F2]/45 tracking-wider">
           <div>© {new Date().getFullYear()} ATMAN Music Collective. All rights reserved.</div>
-          <div className="font-cormorant italic text-[#C9A227]/70">
-            Music That Touches The Soul
+          <div className="flex items-center gap-6">
+            <span className="font-cormorant italic text-[#C9A227]/70">
+              Music That Touches The Soul
+            </span>
+            <Link
+              to="/admin"
+              data-testid="footer-admin-link"
+              className="inline-flex items-center gap-1.5 text-[#F8F6F2]/35 hover:text-[#C9A227] transition-colors"
+              aria-label="Admin"
+            >
+              <Lock size={11} />
+              Admin
+            </Link>
           </div>
         </div>
       </div>
