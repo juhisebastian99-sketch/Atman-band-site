@@ -1,0 +1,27 @@
+{
+  "summary": "Iteration 8 verifies the Netlify build command fix (removed `--frozen-lockfile=false` which yarn v1 misinterpreted as `yarn add false`). Static validations: netlify.toml line 4 is now `cd netlify/functions && yarn install && cd ../.. && cd frontend && yarn install && yarn build` with ZERO occurrences of `frozen-lockfile` in the file. Both installs executed cleanly (functions: Done in 0.05s; frontend: Done in 0.62s) and `yarn build` produced /app/frontend/build/ with index.html, static/, asset-manifest.json — Compiled successfully, 217.45 kB gzipped main JS. All other netlify.toml sections (redirects order, force=true on /api/*, [functions] directory, NODE_VERSION=20, SPA catchall last) are byte-identical to iteration_7. Backend regression: 13/13 pytest cases pass against the Emergent FastAPI preview (admin login Ashutosh12/Ashutosh@12, /api/admin/me, PUT /api/admin/settings, videos CRUD, POST /api/bookings, GET /api/admin/bookings). Frontend E2E was validated in iteration_7 with identical frontend/backend code — this change only affects Netlify build config and does not touch any runtime code, so no re-run needed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "netlify_static_review": {
+    "build_command_no_frozen_lockfile": "PASS — grep -c 'frozen-lockfile' /app/netlify.toml returns 0. Line 4 command: `cd netlify/functions && yarn install && cd ../.. && cd frontend && yarn install && yarn build`.",
+    "functions_yarn_install_exec": "PASS — cd /app/netlify/functions && yarn install → exit 0, 'Done in 0.05s'.",
+    "frontend_yarn_install_exec": "PASS — cd /app/frontend && yarn install → exit 0, 'Done in 0.62s'.",
+    "frontend_yarn_build_exec": "PASS — yarn build → 'Compiled successfully' + 'The build folder is ready to be deployed', exit 0. Output: /app/frontend/build/{index.html, static/, asset-manifest.json, _redirects}.",
+    "redirects_and_functions_unchanged": "PASS — all 9 /api/* redirects with force=true precede SPA /* catchall; [functions] directory = netlify/functions; NODE_VERSION=20; CI=false.",
+    "cors_options_preflight_unchanged": "PASS — no changes to netlify/functions/*.js since iteration_7 (only netlify.toml build.command modified)."
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Build command is now correct for yarn v1.22 (Netlify default). If future migration to yarn 3+/berry is desired, use `--immutable=false` instead of `--frozen-lockfile=false`.",
+    "Consider adding a lockfile check in CI to keep yarn.lock in sync so a future switch to `yarn install --frozen-lockfile` (default enforcement) would still succeed — currently the command allows lockfile drift silently."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (13/13 pytest)", "frontend": "100% build validation (yarn install + yarn build both green)"},
+  "test_credentials": "Ashutosh12 / Ashutosh@12",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Only netlify.toml build.command changed vs iteration_7 (removed `--frozen-lockfile=false` twice). All function code, redirects, CORS/OPTIONS handling remain intact. Both `yarn install` (functions + frontend) and `yarn build` (frontend) execute cleanly locally, which mirrors what Netlify will run. Backend FastAPI on Emergent preview unchanged, all 13 pytest cases green.",
+  "rca of the issue": "Root cause: yarn v1.22 (Netlify's default) does not support `--frozen-lockfile=false` as a boolean-with-value flag — it parses the `false` token as a package name and executes `yarn add false`, which fails since no package named 'false' exists. Fix: dropped both occurrences of `--frozen-lockfile=false` from netlify.toml build.command. Plain `yarn install` uses yarn v1's default behavior which does NOT enforce a frozen lockfile, so the deploy will now succeed."
+}

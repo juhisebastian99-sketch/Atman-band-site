@@ -1,7 +1,7 @@
 [build]
   base = "."
   publish = "frontend/build"
-  command = "cd netlify/functions && yarn install --frozen-lockfile=false && cd ../.. && cd frontend && yarn install --frozen-lockfile=false && yarn build"
+  command = "cd netlify/functions && yarn install && cd ../.. && cd frontend && yarn install && yarn build"
 
 [build.environment]
   NODE_VERSION = "20"
