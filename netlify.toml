@@ -1,8 +1,7 @@
 [build]
   base = "."
   publish = "frontend/build"
-  # Install root deps (function deps) first, then build the frontend
-  command = "yarn install --frozen-lockfile=false && cd frontend && yarn install --frozen-lockfile=false && yarn build"
+  command = "cd netlify/functions && yarn install --frozen-lockfile=false && cd ../.. && cd frontend && yarn install --frozen-lockfile=false && yarn build"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -10,57 +9,63 @@
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild"
-  # Bundle deps into each function
-  external_node_modules = []
 
 # --- API routes -> Netlify Functions (MUST come before SPA catchall) ---
 [[redirects]]
   from = "/api/admin/login"
   to = "/.netlify/functions/admin-login"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/admin/me"
   to = "/.netlify/functions/admin-me"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/admin/bookings"
   to = "/.netlify/functions/admin-bookings"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/admin/settings"
   to = "/.netlify/functions/settings"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/admin/videos"
   to = "/.netlify/functions/videos"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/admin/videos/*"
   to = "/.netlify/functions/videos"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/settings"
   to = "/.netlify/functions/settings"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/videos"
   to = "/.netlify/functions/videos"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/api/bookings"
   to = "/.netlify/functions/bookings"
   status = 200
+  force = true
 
-# --- SPA fallback (MUST be last so /api/* is matched first) ---
+# --- SPA fallback (MUST be last) ---
 [[redirects]]
   from = "/*"
   to = "/index.html"

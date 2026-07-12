@@ -1,7 +1,7 @@
-import { appendBooking, uuid, err, json } from "./_shared.js";
+import { appendBooking, uuid, err, json, preflight } from "./_shared.js";
 
 export default async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 204 });
+  if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return err("Method not allowed", 405);
 
   let body;

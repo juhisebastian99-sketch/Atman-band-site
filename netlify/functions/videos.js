@@ -1,4 +1,4 @@
-import { verifyBearer, loadVideos, saveVideos, uuid, err, json } from "./_shared.js";
+import { verifyBearer, loadVideos, saveVideos, uuid, err, json, preflight } from "./_shared.js";
 
 // Determine the ORIGINAL path (before Netlify redirect rewrites it to /.netlify/functions/videos).
 function originalPath(req) {
@@ -27,6 +27,7 @@ function originalPath(req) {
 //   PUT    /api/admin/videos/:id      -> update (admin)
 //   DELETE /api/admin/videos/:id      -> delete (admin)
 export default async (req) => {
+  if (req.method === "OPTIONS") return preflight();
   const path = originalPath(req);
   const isAdminPath = path.startsWith("/api/admin/videos");
 

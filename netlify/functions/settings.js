@@ -1,6 +1,7 @@
-import { verifyBearer, loadSettings, saveSettings, err, json } from "./_shared.js";
+import { verifyBearer, loadSettings, saveSettings, err, json, preflight } from "./_shared.js";
 
 export default async (req) => {
+  if (req.method === "OPTIONS") return preflight();
   if (req.method === "GET") {
     const s = await loadSettings();
     return json(s);

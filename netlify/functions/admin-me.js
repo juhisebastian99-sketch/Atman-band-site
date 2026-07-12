@@ -1,6 +1,7 @@
-import { verifyBearer, err, json } from "./_shared.js";
+import { verifyBearer, err, json, preflight } from "./_shared.js";
 
 export default async (req) => {
+  if (req.method === "OPTIONS") return preflight();
   if (req.method !== "GET") return err("Method not allowed", 405);
   try {
     const u = verifyBearer(req);

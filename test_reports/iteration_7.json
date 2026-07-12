@@ -1,0 +1,33 @@
+{
+  "summary": "Iteration 7 verified NO REGRESSION on Emergent FastAPI + frontend after 405 fix. Backend: 13/13 pytest cases pass. Frontend E2E: admin login (Ashutosh12/Ashutosh@12) -> dashboard, Contact tab email save -> PUT /api/admin/settings 200, value persists after reload; Videos tab (GET /api/videos 200); Inquiries tab (GET /api/admin/bookings 200). Static review of Netlify config for the 405 fix — all 10 checks PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "netlify_static_review": {
+    "build_command_installs_functions_first": "PASS — netlify.toml line 4: `cd netlify/functions && yarn install --frozen-lockfile=false && cd ../.. && cd frontend && yarn install --frozen-lockfile=false && yarn build`. Functions deps installed BEFORE frontend build.",
+    "api_redirects_before_spa_catchall": "PASS — 9 /api/* redirects (lines 14-66) declared BEFORE the /* SPA catchall (lines 69-72).",
+    "api_redirects_force_true": "PASS — every /api/* [[redirects]] block has `force = true`.",
+    "functions_directory_no_explicit_bundler": "PASS — [functions] block sets only `directory = netlify/functions`, no explicit node_bundler (uses default zisi).",
+    "functions_package_json_present": "PASS — /app/netlify/functions/package.json exists with type=module, engines node>=20, and deps @netlify/blobs ^8.1.0, bcryptjs ^2.4.3, jsonwebtoken ^9.0.2.",
+    "options_preflight_all_functions": "PASS — every function (admin-login, admin-me, admin-bookings, settings, videos, bookings) has `if (req.method === 'OPTIONS') return preflight();` as first statement in handler.",
+    "shared_cors_helper": "PASS — _shared.js exports CORS_HEADERS constant (access-control-allow-origin=*, methods GET/POST/PUT/DELETE/OPTIONS, headers Content-Type/Authorization, max-age 86400) and preflight() returns 204 with those headers. json() and err() both merge CORS_HEADERS into every response.",
+    "esm_export_default_syntax": "PASS — all 7 function files use `export default async (req) => {}` ESM syntax.",
+    "no_export_const_config_remaining": "PASS — grep confirms zero occurrences of `export const config` in any function file. Routing is 100% via netlify.toml redirects.",
+    "node_check_syntax": "PASS — `node --check` returns OK on all 7 function files.",
+    "old_root_package_json_removed": "PASS — /app/package.json no longer exists (moved to /app/netlify/functions/package.json)."
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CORS is currently `access-control-allow-origin: *`. Fine because we don't use credentials/cookies (JWT via Authorization header), but for production hardening consider restricting to the deployed Netlify domain.",
+    "JWT_SECRET defaults to 'atman-dev-secret-change-me' in _shared.js when env var missing — set JWT_SECRET on Netlify prod env to avoid predictable tokens.",
+    "videos.js correctly reads x-nf-original-url to disambiguate /api/videos vs /api/admin/videos vs :id after Netlify rewrites — unchanged since iteration 6, still correct."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (13/13 pytest)", "frontend": "100% (login + settings PUT + persistence + videos + inquiries)"},
+  "test_credentials": "Ashutosh12 / Ashutosh@12",
+  "seed_data_creation": "None new.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Emergent preview (FastAPI at /app/backend/server.py) is unchanged and fully working. The Netlify function changes (OPTIONS preflight, CORS headers, moved package.json to netlify/functions/, build command CDs into functions dir first) can only be statically reviewed here — cannot be deployment-tested. All static checks pass; the 405-on-PUT bug root cause was CORS preflight OPTIONS having no handler, which is now fixed by preflight() returning 204 with CORS headers on every function. First input on /admin/dashboard Contact tab has NO name attribute and is NOT type='email' — use `page.locator('input').first` or scope by label text.",
+  "rca of the issue": "Root cause of the 405 error: Browser sent an OPTIONS preflight before the PUT (because Authorization header + JSON body triggers CORS preflight). The Netlify function had no OPTIONS branch, so it fell into the default 405 'Method not allowed' err() call. Fix: every function now handles `if (req.method === 'OPTIONS') return preflight();` first, and all normal JSON responses include Access-Control-Allow-* headers via _shared.js CORS_HEADERS. Secondary fix: package.json for the 3 CJS deps (bcryptjs, jsonwebtoken, @netlify/blobs) moved into netlify/functions/ and the build command CDs there first, so Netlify's function bundler (zisi/esbuild) reliably discovers and installs them before packaging."
+}

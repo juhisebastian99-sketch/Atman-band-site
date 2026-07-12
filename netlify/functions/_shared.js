@@ -18,12 +18,22 @@ export const uuid = () =>
   globalThis.crypto?.randomUUID?.() ||
   `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+export const CORS_HEADERS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "access-control-allow-headers": "Content-Type, Authorization",
+  "access-control-max-age": "86400",
+};
+
+export const preflight = () => new Response(null, { status: 204, headers: CORS_HEADERS });
+
 export const json = (data, init = {}) =>
   new Response(JSON.stringify(data), {
     ...init,
     headers: {
       "content-type": "application/json",
       "cache-control": "no-store",
+      ...CORS_HEADERS,
       ...(init.headers || {}),
     },
   });
