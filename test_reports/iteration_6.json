@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 6 verified: (a) no regression on Emergent preview FastAPI backend — 13/13 pytest cases pass including admin login, settings PUT, videos CRUD, bookings CRUD; (b) admin E2E on Emergent preview passes — login (Ashutosh12/Ashutosh@12) redirects to /admin/dashboard with 'Welcome back' toast, Contact save fires PUT /api/admin/settings -> 200, Videos & Inquiries tabs load with /api/videos & /api/admin/bookings 200; (c) booking form validation shows human-friendly messages; (d) STATIC review of Netlify config passed on all 6 requested checks.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "netlify_static_review": {
+    "netlify_toml_redirect_order": "PASS — 9 explicit /api/* redirects declared BEFORE /* SPA catchall (lines 18-61 come before 64-67 in /app/netlify.toml). Order matters and is correct.",
+    "build_command": "PASS — `yarn install --frozen-lockfile=false && cd frontend && yarn install --frozen-lockfile=false && yarn build` installs root package.json deps (@netlify/blobs, bcryptjs, jsonwebtoken) before frontend build.",
+    "functions_config": "PASS — [functions] directory = netlify/functions, node_bundler = esbuild.",
+    "esm_export_default_syntax": "PASS — all 7 function files use `export default async (req) => { ... }`.",
+    "no_export_const_config": "PASS — grep confirms no `export const config` remaining in any function.",
+    "videos_original_url_parsing": "PASS — videos.js reads x-nf-original-url (fallback x-forwarded-url, then req.url) and correctly branches on /api/videos vs /api/admin/videos vs /api/admin/videos/:id via regex.",
+    "root_package_json_deps": "PASS — @netlify/blobs ^8.1.0, bcryptjs ^2.4.3, jsonwebtoken ^9.0.2 declared with type=module.",
+    "node_check_syntax": "PASS — `node --check` returns OK for all 7 function files (_shared, admin-bookings, admin-login, admin-me, bookings, settings, videos)."
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: netlify.toml redirect for `/api/admin/videos` and `/api/admin/videos/*` both point to the same function (correct). The regex in videos.js properly distinguishes list vs :id operations via x-nf-original-url. No action needed.",
+    "Minor: _shared.js uses JWT_SECRET default 'atman-dev-secret-change-me' if env not set. Recommend setting JWT_SECRET as a Netlify env var in production for token security (not blocking for functionality).",
+    "Minor: Netlify Blobs `store()` is created per-request; that's fine but consider strong consistency is already set — OK."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (13/13 pytest)", "frontend": "100% (admin E2E + booking form)"},
+  "test_credentials": "Ashutosh12 / Ashutosh@12",
+  "seed_data_creation": "None new. Prior TEST_ prefixed settings/booking data still in Emergent MongoDB from earlier iterations.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Netlify Functions cannot be runtime-tested from Emergent env (no way to deploy or hit netlify.app URL). Only static/code review is possible. Emergent preview uses FastAPI backend at /app/backend/server.py — unchanged and fully working. If user reports Netlify admin still not saving after this fix, verify (1) Netlify build log actually installed root deps before functions bundled, (2) Netlify site has enabled Blobs (auto on when @netlify/blobs used, but requires site to have been deployed once), (3) function logs on Netlify UI for /api/admin/settings PUT.",
+  "rca of the issue": "Root cause of Netlify admin-save failure was SPA catchall `/*` -> /index.html intercepting /api/* requests before Netlify Functions could handle them, plus root package.json deps not being installed during build. Fix in netlify.toml: (i) explicit [[redirects]] for each /api/* route placed BEFORE the /* catchall, (ii) build command runs `yarn install` at root before frontend build. Also videos.js now reads x-nf-original-url header to disambiguate list vs :id vs public paths after rewrite. All static checks pass; user's next Netlify redeploy should now correctly route /api/admin/settings PUT to the settings function and persist to Blobs."
+}

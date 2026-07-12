@@ -22,7 +22,3 @@ export default async (req) => {
   }
   return err("Method not allowed", 405);
 };
-
-// Same function handles both public GET and admin PUT.
-// Routed via redirects in netlify.toml.
-export const config = { path: "/api/settings" };

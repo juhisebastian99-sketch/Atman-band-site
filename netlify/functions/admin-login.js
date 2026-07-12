@@ -22,5 +22,3 @@ export default async (req) => {
   const token = createToken(admin.username);
   return json({ token, username: admin.username, role: "admin" });
 };
-
-export const config = { path: "/api/admin/login" };

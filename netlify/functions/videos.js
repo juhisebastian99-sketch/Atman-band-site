@@ -1,21 +1,42 @@
 import { verifyBearer, loadVideos, saveVideos, uuid, err, json } from "./_shared.js";
 
+// Determine the ORIGINAL path (before Netlify redirect rewrites it to /.netlify/functions/videos).
+function originalPath(req) {
+  const headerUrl =
+    req.headers.get("x-nf-original-url") ||
+    req.headers.get("x-forwarded-url") ||
+    "";
+  if (headerUrl) {
+    try {
+      return new URL(headerUrl).pathname;
+    } catch (_) {
+      /* ignore */
+    }
+  }
+  try {
+    return new URL(req.url).pathname;
+  } catch (_) {
+    return "";
+  }
+}
+
 // Handles:
 //   GET    /api/videos                -> public list
+//   GET    /api/admin/videos          -> admin list (same content, requires auth)
 //   POST   /api/admin/videos          -> create (admin)
 //   PUT    /api/admin/videos/:id      -> update (admin)
 //   DELETE /api/admin/videos/:id      -> delete (admin)
 export default async (req) => {
-  const url = new URL(req.url);
-  const path = url.pathname;
+  const path = originalPath(req);
   const isAdminPath = path.startsWith("/api/admin/videos");
 
+  // Public GET
   if (req.method === "GET" && !isAdminPath) {
     const list = await loadVideos();
     return json(list);
   }
 
-  // Everything below is admin
+  // All admin actions require auth
   try {
     verifyBearer(req);
   } catch (e) {
@@ -24,6 +45,10 @@ export default async (req) => {
 
   const list = await loadVideos();
 
+  if (req.method === "GET" && isAdminPath) {
+    return json(list);
+  }
+
   if (req.method === "POST" && path === "/api/admin/videos") {
     let body;
     try {
@@ -31,13 +56,14 @@ export default async (req) => {
     } catch {
       return err("Invalid JSON", 400);
     }
-    if (!body?.youtube_id || !body?.title) return err("youtube_id and title required", 400);
+    if (!body?.youtube_id || !body?.title)
+      return err("youtube_id and title required", 400);
     const v = {
       id: uuid(),
       youtube_id: String(body.youtube_id).trim(),
       title: String(body.title).trim(),
       subtitle: String(body.subtitle || "").trim(),
-      order: Number(body.order) || (list.length + 1),
+      order: Number(body.order) || list.length + 1,
       created_at: new Date().toISOString(),
     };
     const next = [...list, v];
@@ -46,7 +72,7 @@ export default async (req) => {
   }
 
   // Match /api/admin/videos/:id
-  const m = path.match(/^\/api\/admin\/videos\/([^\/]+)$/);
+  const m = path.match(/^\/api\/admin\/videos\/([^/]+)$/);
   if (m) {
     const id = m[1];
     const idx = list.findIndex((v) => v.id === id);
@@ -64,7 +90,8 @@ export default async (req) => {
         youtube_id: String(body.youtube_id ?? list[idx].youtube_id).trim(),
         title: String(body.title ?? list[idx].title).trim(),
         subtitle: String(body.subtitle ?? list[idx].subtitle ?? "").trim(),
-        order: Number(body.order ?? list[idx].order) || list[idx].order,
+        order:
+          Number(body.order ?? list[idx].order) || list[idx].order,
       };
       const next = [...list];
       next[idx] = updated;
@@ -80,8 +107,4 @@ export default async (req) => {
   }
 
   return err("Not found", 404);
-};
-
-export const config = {
-  path: ["/api/videos", "/api/admin/videos", "/api/admin/videos/*"],
 };

@@ -10,5 +10,3 @@ export default async (req) => {
   const items = await loadBookings();
   return json(items);
 };
-
-export const config = { path: "/api/admin/bookings" };

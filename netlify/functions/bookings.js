@@ -35,5 +35,3 @@ export default async (req) => {
   await appendBooking(inquiry);
   return json(inquiry, { status: 201 });
 };
-
-export const config = { path: "/api/bookings" };

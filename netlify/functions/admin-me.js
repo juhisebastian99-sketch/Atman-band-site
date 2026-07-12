@@ -9,5 +9,3 @@ export default async (req) => {
     return err(e.message, e.status || 401);
   }
 };
-
-export const config = { path: "/api/admin/me" };
