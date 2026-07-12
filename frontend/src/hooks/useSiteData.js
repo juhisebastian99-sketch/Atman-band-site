@@ -21,7 +21,13 @@ export const useSiteSettings = () => {
     let alive = true;
     axios
       .get(`${API}/settings`)
-      .then((r) => alive && setSettings({ ...DEFAULT_SETTINGS, ...r.data }))
+      .then((r) => {
+        if (!alive) return;
+        const d = r?.data;
+        if (d && typeof d === "object" && !Array.isArray(d)) {
+          setSettings({ ...DEFAULT_SETTINGS, ...d });
+        }
+      })
       .catch(() => {});
     return () => {
       alive = false;
@@ -36,7 +42,10 @@ export const useVideos = () => {
     let alive = true;
     axios
       .get(`${API}/videos`)
-      .then((r) => alive && setVideos(r.data || []))
+      .then((r) => {
+        if (!alive) return;
+        if (Array.isArray(r?.data)) setVideos(r.data);
+      })
       .catch(() => {});
     return () => {
       alive = false;
