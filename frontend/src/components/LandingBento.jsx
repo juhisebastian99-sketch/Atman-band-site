@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Booking from "@/components/Booking";
+import AtmanLogo, { AtmanLogoLarge } from "@/components/AtmanLogo";
 import { useSiteSettings, useVideos, useShows } from "@/hooks/useSiteData";
 
 const LOGO_URL =
@@ -82,18 +83,9 @@ const scrollToId = (id) => {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
-/* Reusable "clean Enso logo" element — uses global #atman-remove-black filter */
+/* Reusable "clean Enso logo" element — uses canvas-processed transparent PNG */
 const EnsoLogo = ({ className = "" }) => (
-  <img
-    src={LOGO_URL}
-    alt="ATMAN"
-    style={{
-      filter: "url(#atman-remove-black) contrast(1.1)",
-      mixBlendMode: "lighten",
-    }}
-    className={`object-contain select-none pointer-events-none ${className}`}
-    draggable={false}
-  />
+  <AtmanLogoLarge className={className} />
 );
 
 /* Diagonal parallel gold brush strokes — decorative */
@@ -590,9 +582,18 @@ const FooterBento = ({ settings }) => {
         <p className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/40 font-cinzel">
           © {new Date().getFullYear()} ATMAN — All Rights Reserved
         </p>
-        <p className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/40 font-cinzel">
-          Crafted with soul
-        </p>
+        <div className="flex items-center gap-6">
+          <a
+            href="/admin"
+            data-testid="footer-admin-link"
+            className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/40 hover:text-[#C9A227] font-cinzel transition-colors"
+          >
+            Admin
+          </a>
+          <p className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/40 font-cinzel">
+            Crafted with soul
+          </p>
+        </div>
       </div>
     </section>
   );

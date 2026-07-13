@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { PlayCircle } from "lucide-react";
+import { AtmanLogoLarge } from "@/components/AtmanLogo";
 
 // Grayscale band silhouettes on stage — matches the reference mockup.
 // Wide shot of musicians silhouetted against stage lights and smoke.
@@ -111,17 +112,7 @@ export const Hero = () => {
               filter: "blur(40px)",
             }}
           />
-          <img
-            src={LOGO_URL}
-            alt="ATMAN"
-            style={{
-              filter:
-                "url(#atman-remove-black) contrast(1.1) drop-shadow(0 0 30px rgba(201,162,39,0.35))",
-              mixBlendMode: "lighten",
-            }}
-            className="relative w-[320px] sm:w-[440px] md:w-[560px] lg:w-[640px] h-auto object-contain select-none pointer-events-none"
-            draggable={false}
-          />
+          <AtmanLogoLarge className="relative w-[320px] sm:w-[440px] md:w-[560px] lg:w-[640px] h-auto drop-shadow-[0_0_30px_rgba(201,162,39,0.35)]" />
         </motion.div>
 
         {/* Tagline — "MUSIC. SOUL. CONNECTION." with SOUL in gold, matches reference */}

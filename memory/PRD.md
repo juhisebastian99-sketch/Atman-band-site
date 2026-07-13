@@ -82,3 +82,8 @@ Build a premium, fully responsive website for a luxury live music band called "A
   - **Shows CRUD** wired end-to-end: FastAPI (`/api/shows`, `/api/admin/shows/*`) + Netlify function `shows.js` + Blobs storage + `netlify.toml` routing + `useShows()` hook + admin Shows tab (add/edit/delete rows). Default seed: Live at Blue Frog (Jun 24), Rock Night Fest (Jul 05), Sounds of Soul (Jul 19). Fields: day, month, title, city, ticket_url, order.
   - Contact details & YouTube video CRUD already existed and are now surfaced in the bento — Music card uses live videos from `/api/videos`, footer socials use live settings from `/api/settings`.
   - Full curl E2E tested: login → create show → update show → list (sorted) → delete → verify.
+- 2026-07-13 (v5): **Logo made bulletproof + Admin button + explanation of Netlify serverless "no backend".**
+  - `AtmanLogo.jsx` rewritten with canvas-based processing: on page load, the JPG is drawn to an offscreen canvas, every near-black pixel gets alpha=0 with feathered anti-aliasing on the edges, and the result is exposed as a data-URL PNG. This is a REAL transparent PNG — works identically across browsers, cached or not, with or without CSS filter support. Result cached at module scope so it processes only once per page load.
+  - New `AtmanLogoLarge` export used in Hero + Bento centerpiece + Footer for the big Enso mark.
+  - **Admin button** added in footer bottom-right (subtle gold hover) — visitors can now reach `/admin` without knowing the URL.
+  - Confirmed via screenshot: logo visible in nav + hero + footer with zero visible black rectangle.
