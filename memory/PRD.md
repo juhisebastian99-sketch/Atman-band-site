@@ -87,3 +87,18 @@ Build a premium, fully responsive website for a luxury live music band called "A
   - New `AtmanLogoLarge` export used in Hero + Bento centerpiece + Footer for the big Enso mark.
   - **Admin button** added in footer bottom-right (subtle gold hover) — visitors can now reach `/admin` without knowing the URL.
   - Confirmed via screenshot: logo visible in nav + hero + footer with zero visible black rectangle.
+- 2026-07-13 (v6): **All social/contact links now fully admin-editable end-to-end.**
+  - Added `facebook` field to SiteSettings model (FastAPI + Netlify + admin form). Admin panel Contact tab now has 4 social fields (Instagram, YouTube, Spotify, Facebook) plus WhatsApp, Email, Phone, Location.
+  - Navbar rewritten to read from `useSiteSettings()` — all 4 top-right social icons and mobile menu socials now open the admin-configured URLs.
+  - FooterBento already reads settings.facebook/instagram/youtube/spotify.
+  - Contact info (email, phone, location) already reads from settings via Booking component.
+  - Shows/Videos already fully admin-editable via `/api/shows` and `/api/videos` CRUD.
+  - E2E verified: PUT /admin/settings with new socials → GET /api/settings returns them → Navbar renders links with new URLs (screenshot confirmed).
+
+  **Admin can now edit** (all persist to Netlify Blobs / MongoDB, immediately reflected on the site):
+  - Email, Phone, WhatsApp, Location (Contact tab)
+  - Instagram, YouTube, Spotify, Facebook URLs (Contact tab)
+  - Hero tagline & subline (Contact tab)
+  - Upcoming Shows: day, month, title, city, ticket URL, order (Shows tab)
+  - Performance Videos: YouTube ID, title, subtitle, order (Videos tab)
+  - View incoming booking inquiries (Inquiries tab)

@@ -11,7 +11,7 @@ import AtmanLogo from "@/components/AtmanLogo";
 
 const DEFAULT_SETTINGS = {
   email: "", phone: "", location: "",
-  instagram: "", youtube: "", spotify: "", whatsapp: "",
+  instagram: "", youtube: "", spotify: "", facebook: "", whatsapp: "",
   hero_tagline: "", hero_subline: "",
 };
 
@@ -230,6 +230,7 @@ export default function AdminDashboard() {
                 <Field label="Instagram URL" data-testid="settings-instagram" value={settings.instagram} onChange={(e) => setSettings({ ...settings, instagram: e.target.value })} placeholder="https://instagram.com/…" />
                 <Field label="YouTube URL" data-testid="settings-youtube" value={settings.youtube} onChange={(e) => setSettings({ ...settings, youtube: e.target.value })} placeholder="https://youtube.com/@…" />
                 <Field label="Spotify URL" data-testid="settings-spotify" value={settings.spotify} onChange={(e) => setSettings({ ...settings, spotify: e.target.value })} placeholder="https://open.spotify.com/artist/…" />
+                <Field label="Facebook URL" data-testid="settings-facebook" value={settings.facebook} onChange={(e) => setSettings({ ...settings, facebook: e.target.value })} placeholder="https://facebook.com/…" />
               </div>
               <div className="mt-10 pt-6 border-t border-[#C9A227]/15">
                 <div className="flex items-center gap-3 mb-6">

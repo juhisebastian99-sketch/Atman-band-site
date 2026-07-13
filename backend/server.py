@@ -101,6 +101,7 @@ class SiteSettings(BaseModel):
     instagram: str = ""
     youtube: str = ""
     spotify: str = ""
+    facebook: str = ""
     whatsapp: str = ""
     hero_tagline: str = "Music That Touches The Soul"
     hero_subline: str = "Luxury Live Music for Weddings, Destination Weddings, Corporate Events & Private Celebrations."

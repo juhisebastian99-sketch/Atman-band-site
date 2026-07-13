@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Menu, X, Instagram, Youtube, Music2, Facebook } from "lucide-react";
 import AtmanLogo from "./AtmanLogo";
+import { useSiteSettings } from "@/hooks/useSiteData";
 
 const links = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
-  { id: "performances", label: "Music" },
-  { id: "services", label: "Shows" },
+  { id: "music", label: "Music" },
+  { id: "shows", label: "Shows" },
   { id: "gallery", label: "Gallery" },
   { id: "booking", label: "Contact" },
-];
-
-const socials = [
-  { href: "https://instagram.com/", label: "Instagram", Icon: Instagram },
-  { href: "https://youtube.com/", label: "YouTube", Icon: Youtube },
-  { href: "https://open.spotify.com/", label: "Spotify", Icon: Music2 },
-  { href: "https://facebook.com/", label: "Facebook", Icon: Facebook },
 ];
 
 const scrollTo = (id) => {
@@ -26,6 +20,14 @@ const scrollTo = (id) => {
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const settings = useSiteSettings();
+
+  const socials = [
+    { href: settings.instagram || "https://instagram.com/", label: "Instagram", Icon: Instagram },
+    { href: settings.youtube || "https://youtube.com/", label: "YouTube", Icon: Youtube },
+    { href: settings.spotify || "https://open.spotify.com/", label: "Spotify", Icon: Music2 },
+    { href: settings.facebook || "https://facebook.com/", label: "Facebook", Icon: Facebook },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -64,7 +66,7 @@ export const Navbar = () => {
           ))}
         </nav>
 
-        {/* Social icons on the right — matches reference mockup */}
+        {/* Social icons — populated from admin settings */}
         <div className="hidden lg:flex items-center gap-5" data-testid="nav-socials">
           {socials.map(({ href, label, Icon }) => (
             <a

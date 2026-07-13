@@ -107,6 +107,7 @@ export const DEFAULT_SETTINGS = {
   instagram: "",
   youtube: "",
   spotify: "",
+  facebook: "",
   whatsapp: "",
   hero_tagline: "Music That Touches The Soul",
   hero_subline:
