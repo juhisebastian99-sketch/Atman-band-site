@@ -9,7 +9,7 @@ export const About = () => {
     <section
       id="about"
       data-testid="about-section"
-      className="relative bg-[#121212] py-24 lg:py-32"
+      className="relative bg-black py-24 lg:py-32"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
         {/* Left copy */}
@@ -85,7 +85,7 @@ export const About = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-[#121212]/70 via-transparent to-transparent" />
 
             {/* Floating badge */}
-            <div className="absolute -bottom-8 -left-6 sm:-left-10 backdrop-blur-lg bg-[#121212]/80 border border-[#C9A227]/25 px-6 py-4">
+            <div className="absolute -bottom-8 -left-6 sm:-left-10 backdrop-blur-lg bg-black/80 border border-[#C9A227]/25 px-6 py-4">
               <div className="font-cinzel text-xs tracking-[0.3em] uppercase text-[#C9A227]">
                 Ensemble
               </div>
