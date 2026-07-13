@@ -102,3 +102,7 @@ Build a premium, fully responsive website for a luxury live music band called "A
   - Upcoming Shows: day, month, title, city, ticket URL, order (Shows tab)
   - Performance Videos: YouTube ID, title, subtitle, order (Videos tab)
   - View incoming booking inquiries (Inquiries tab)
+- 2026-07-13 (v7): **ROOT CAUSE found and fixed for the persistent "cant see logo" issue.**
+  - Diagnosed: `customer-assets.emergentagent.com` does NOT send `Access-Control-Allow-Origin` headers, which caused canvas `getImageData()` to throw a CORS security error in the client's Chrome. The canvas processing silently failed and the component fell back to the raw JPG (with visible black rectangle on dark bg → invisible logo).
+  - Fix: Pre-processed the logo server-side using Python PIL (near-black pixels → alpha 0 with feathered edges) and saved as `/app/frontend/public/atman-logo.png` — a proper 32KB transparent PNG. AtmanLogo now references `/atman-logo.png` (same-origin static asset), no canvas, no CORS, no CSS filter, no blend mode. Works in every browser identically.
+  - Also added `no-cache` meta tags to `index.html` so future updates render fresh.
