@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   LogOut, Save, Trash2, Plus, Youtube, Contact, Mail, MessageSquare,
-  Loader2, Inbox,
+  Loader2, Inbox, Calendar as CalendarIcon,
 } from "lucide-react";
 import { api, clearToken, getToken, formatApiError } from "@/lib/api";
 import AtmanLogo from "@/components/AtmanLogo";
@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS = {
 };
 
 const emptyVideo = { youtube_id: "", title: "", subtitle: "", order: 0 };
+const emptyShow = { day: "", month: "", title: "", city: "", ticket_url: "", order: 0 };
 const inputCls =
   "w-full bg-transparent border-b border-[#C9A227]/25 focus:border-[#C9A227] outline-none py-2.5 text-[#F8F6F2] placeholder:text-[#F8F6F2]/40 text-sm";
 
@@ -31,9 +32,11 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState("settings");
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [videos, setVideos] = useState([]);
+  const [shows, setShows] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [saving, setSaving] = useState(false);
   const [newVid, setNewVid] = useState(emptyVideo);
+  const [newShow, setNewShow] = useState(emptyShow);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,6 +47,7 @@ export default function AdminDashboard() {
     Promise.all([
       api.get("/settings").then((r) => setSettings({ ...DEFAULT_SETTINGS, ...r.data })),
       api.get("/videos").then((r) => setVideos(r.data || [])),
+      api.get("/shows").then((r) => setShows(r.data || [])).catch(() => {}),
       api.get("/admin/bookings").then((r) => setInquiries(r.data || [])).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, [nav]);
@@ -107,6 +111,52 @@ export default function AdminDashboard() {
     }
   };
 
+  const addShow = async () => {
+    if (!newShow.day || !newShow.month || !newShow.title)
+      return toast.error("Day, month and title are required.");
+    try {
+      const { data } = await api.post("/admin/shows", {
+        ...newShow,
+        order: Number(newShow.order) || 0,
+      });
+      setShows((s) => [...s, data].sort((a, b) => (a.order || 0) - (b.order || 0)));
+      setNewShow(emptyShow);
+      toast.success("Show added.");
+    } catch (e) {
+      toast.error(formatApiError(e));
+    }
+  };
+
+  const updateShow = async (id, patch) => {
+    const current = shows.find((v) => v.id === id);
+    if (!current) return;
+    const next = { ...current, ...patch };
+    setShows((vs) => vs.map((v) => (v.id === id ? next : v)));
+    try {
+      await api.put(`/admin/shows/${id}`, {
+        day: next.day,
+        month: next.month,
+        title: next.title,
+        city: next.city || "",
+        ticket_url: next.ticket_url || "",
+        order: Number(next.order) || 0,
+      });
+    } catch (e) {
+      toast.error(formatApiError(e));
+    }
+  };
+
+  const deleteShow = async (id) => {
+    if (!window.confirm("Delete this show?")) return;
+    try {
+      await api.delete(`/admin/shows/${id}`);
+      setShows((v) => v.filter((x) => x.id !== id));
+      toast.success("Show deleted.");
+    } catch (e) {
+      toast.error(formatApiError(e));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#121212] text-[#F8F6F2] font-poppins">
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#121212]/85 border-b border-[#C9A227]/20">
@@ -142,6 +192,7 @@ export default function AdminDashboard() {
             {[
               { k: "settings", label: "Contact", icon: Contact },
               { k: "videos", label: "Videos", icon: Youtube },
+              { k: "shows", label: "Shows", icon: CalendarIcon },
               { k: "inquiries", label: "Inquiries", icon: Inbox },
             ].map((t) => {
               const Icon = t.icon;
@@ -249,6 +300,65 @@ export default function AdminDashboard() {
                       <button onClick={() => deleteVideo(v.id)} data-testid={`delete-video-${v.id}`}
                         className="p-3 text-[#F8F6F2]/70 hover:text-red-400 border border-[#C9A227]/20 hover:border-red-400/50 transition-colors"
                         aria-label="Delete video">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ) : tab === "shows" ? (
+            <motion.div key="shows" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} data-testid="admin-shows-panel">
+              <div className="bg-[#1a1a1a] border border-[#C9A227]/15 p-8 lg:p-10 mb-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <Plus size={18} className="text-[#C9A227]" />
+                  <h2 className="font-cinzel text-xl">Add Upcoming Show</h2>
+                </div>
+                <div className="grid md:grid-cols-6 gap-6">
+                  <Field label="Day" data-testid="new-show-day" value={newShow.day} onChange={(e) => setNewShow({ ...newShow, day: e.target.value })} placeholder="24" />
+                  <Field label="Month" data-testid="new-show-month" value={newShow.month} onChange={(e) => setNewShow({ ...newShow, month: e.target.value })} placeholder="Jun" />
+                  <Field label="Title" data-testid="new-show-title" value={newShow.title} onChange={(e) => setNewShow({ ...newShow, title: e.target.value })} placeholder="Live at Blue Frog" />
+                  <Field label="City" data-testid="new-show-city" value={newShow.city} onChange={(e) => setNewShow({ ...newShow, city: e.target.value })} placeholder="Mumbai, India" />
+                  <Field label="Ticket URL" data-testid="new-show-ticket" value={newShow.ticket_url} onChange={(e) => setNewShow({ ...newShow, ticket_url: e.target.value })} placeholder="https://bookmyshow.com/…" />
+                  <Field label="Order" data-testid="new-show-order" type="number" value={newShow.order} onChange={(e) => setNewShow({ ...newShow, order: e.target.value })} placeholder="0" />
+                </div>
+                <button onClick={addShow} data-testid="new-show-add"
+                  className="gold-btn mt-8 inline-flex items-center gap-3 bg-[#C9A227] text-[#121212] font-cinzel tracking-[0.28em] uppercase text-xs px-8 py-4">
+                  <Plus size={16} /> Add Show
+                </button>
+              </div>
+
+              <div className="space-y-4" data-testid="admin-show-list">
+                {shows.length === 0 && (
+                  <div className="text-center text-[#F8F6F2]/50 py-16 border border-dashed border-[#C9A227]/20">
+                    No shows yet — add your first upcoming event above.
+                  </div>
+                )}
+                {shows.map((s) => (
+                  <div key={s.id} data-testid={`show-row-${s.id}`}
+                    className="bg-[#1a1a1a] border border-[#C9A227]/15 p-6 grid lg:grid-cols-12 gap-4 items-center">
+                    <div className="lg:col-span-1">
+                      <Field label="Day" value={s.day} onChange={(e) => updateShow(s.id, { day: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-1">
+                      <Field label="Month" value={s.month} onChange={(e) => updateShow(s.id, { month: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-3">
+                      <Field label="Title" value={s.title} onChange={(e) => updateShow(s.id, { title: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-3">
+                      <Field label="City" value={s.city || ""} onChange={(e) => updateShow(s.id, { city: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-2">
+                      <Field label="Ticket URL" value={s.ticket_url || ""} onChange={(e) => updateShow(s.id, { ticket_url: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-1">
+                      <Field label="Order" type="number" value={s.order} onChange={(e) => updateShow(s.id, { order: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-1 flex lg:justify-end">
+                      <button onClick={() => deleteShow(s.id)} data-testid={`delete-show-${s.id}`}
+                        className="p-3 text-[#F8F6F2]/70 hover:text-red-400 border border-[#C9A227]/20 hover:border-red-400/50 transition-colors"
+                        aria-label="Delete show">
                         <Trash2 size={16} />
                       </button>
                     </div>

@@ -53,3 +53,21 @@ export const useVideos = () => {
   }, []);
   return videos;
 };
+
+export const useShows = () => {
+  const [shows, setShows] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    axios
+      .get(`${API}/shows`)
+      .then((r) => {
+        if (!alive) return;
+        if (Array.isArray(r?.data)) setShows(r.data);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return shows;
+};

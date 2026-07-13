@@ -119,6 +119,12 @@ export const DEFAULT_VIDEOS = [
   { id: "seed-3", youtube_id: "DWcJFNfaw9c", title: "Rock Finale · Encore", subtitle: "Corporate Gala · Bengaluru", order: 3, created_at: new Date().toISOString() },
 ];
 
+export const DEFAULT_SHOWS = [
+  { id: "show-1", day: "24", month: "Jun", title: "Live at Blue Frog", city: "Mumbai, India", ticket_url: "", order: 1, created_at: new Date().toISOString() },
+  { id: "show-2", day: "05", month: "Jul", title: "Rock Night Fest", city: "Pune, India", ticket_url: "", order: 2, created_at: new Date().toISOString() },
+  { id: "show-3", day: "19", month: "Jul", title: "Sounds of Soul", city: "Bangalore, India", ticket_url: "", order: 3, created_at: new Date().toISOString() },
+];
+
 export async function loadSettings() {
   const saved = (await store().get("settings", { type: "json" })) || {};
   return { ...DEFAULT_SETTINGS, ...saved };
@@ -139,6 +145,19 @@ export async function loadVideos() {
 }
 export async function saveVideos(list) {
   await store().setJSON("videos", list);
+  return list;
+}
+
+export async function loadShows() {
+  let list = await store().get("shows", { type: "json" });
+  if (!Array.isArray(list)) {
+    list = DEFAULT_SHOWS;
+    await store().setJSON("shows", list);
+  }
+  return [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+export async function saveShows(list) {
+  await store().setJSON("shows", list);
   return list;
 }
 

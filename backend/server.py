@@ -119,6 +119,21 @@ class Video(VideoCreate):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class ShowCreate(BaseModel):
+    day: str = Field(..., min_length=1, max_length=8)
+    month: str = Field(..., min_length=2, max_length=12)
+    title: str = Field(..., min_length=1, max_length=160)
+    city: str = Field(default="", max_length=120)
+    ticket_url: str = Field(default="", max_length=400)
+    order: int = 0
+
+
+class Show(ShowCreate):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 # ---------- Routes ----------
 @api_router.get("/")
 async def root():
@@ -145,6 +160,18 @@ async def get_settings():
 @api_router.get("/videos", response_model=List[Video])
 async def list_videos():
     items = await db.videos.find({}, {"_id": 0}).sort([("order", 1), ("created_at", 1)]).to_list(200)
+    for it in items:
+        if isinstance(it.get('created_at'), str):
+            try:
+                it['created_at'] = datetime.fromisoformat(it['created_at'])
+            except Exception:
+                pass
+    return items
+
+
+@api_router.get("/shows", response_model=List[Show])
+async def list_shows():
+    items = await db.shows.find({}, {"_id": 0}).sort([("order", 1), ("created_at", 1)]).to_list(200)
     for it in items:
         if isinstance(it.get('created_at'), str):
             try:
@@ -220,6 +247,38 @@ async def delete_video(video_id: str, current=Depends(require_admin)):
     return {"ok": True}
 
 
+@api_router.post("/admin/shows", response_model=Show, status_code=201)
+async def create_show(payload: ShowCreate, current=Depends(require_admin)):
+    s = Show(**payload.model_dump())
+    doc = s.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.shows.insert_one(doc)
+    return s
+
+
+@api_router.put("/admin/shows/{show_id}", response_model=Show)
+async def update_show(show_id: str, payload: ShowCreate, current=Depends(require_admin)):
+    existing = await db.shows.find_one({"id": show_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Show not found")
+    updated = {**existing, **payload.model_dump()}
+    await db.shows.update_one({"id": show_id}, {"$set": payload.model_dump()})
+    if isinstance(updated.get('created_at'), str):
+        try:
+            updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+        except Exception:
+            updated['created_at'] = datetime.now(timezone.utc)
+    return Show(**updated)
+
+
+@api_router.delete("/admin/shows/{show_id}")
+async def delete_show(show_id: str, current=Depends(require_admin)):
+    res = await db.shows.delete_one({"id": show_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Show not found")
+    return {"ok": True}
+
+
 app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
@@ -236,6 +295,12 @@ DEFAULT_VIDEOS = [
     {"youtube_id": "5qap5aO4i9A", "title": "Sufi Evening · Live Set", "subtitle": "Palace Wedding · Udaipur", "order": 1},
     {"youtube_id": "jfKfPfyJRdk", "title": "Bollywood Anthems Medley", "subtitle": "Sangeet Night · Mumbai", "order": 2},
     {"youtube_id": "DWcJFNfaw9c", "title": "Rock Finale · Encore", "subtitle": "Corporate Gala · Bengaluru", "order": 3},
+]
+
+DEFAULT_SHOWS = [
+    {"day": "24", "month": "Jun", "title": "Live at Blue Frog", "city": "Mumbai, India", "ticket_url": "", "order": 1},
+    {"day": "05", "month": "Jul", "title": "Rock Night Fest", "city": "Pune, India", "ticket_url": "", "order": 2},
+    {"day": "19", "month": "Jul", "title": "Sounds of Soul", "city": "Bangalore, India", "ticket_url": "", "order": 3},
 ]
 
 
@@ -262,6 +327,13 @@ async def on_startup():
             d = video.model_dump()
             d['created_at'] = d['created_at'].isoformat()
             await db.videos.insert_one(d)
+    shows_count = await db.shows.count_documents({})
+    if shows_count == 0:
+        for s in DEFAULT_SHOWS:
+            show = Show(**s)
+            d = show.model_dump()
+            d['created_at'] = d['created_at'].isoformat()
+            await db.shows.insert_one(d)
 
 
 @app.on_event("shutdown")
