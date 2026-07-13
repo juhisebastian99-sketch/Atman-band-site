@@ -39,6 +39,23 @@ const Landing = () => {
 function App() {
   return (
     <div className="App">
+      {/* Global SVG color-matrix filter — converts pure-black pixels of any
+          image using filter: url(#atman-remove-black) into alpha=0. This lets
+          the ATMAN Enso logo JPG render as if it were a transparent PNG on
+          any surface, without depending on component-local defs. */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <defs>
+          <filter id="atman-remove-black" colorInterpolationFilters="sRGB">
+            <feColorMatrix
+              type="matrix"
+              values="1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      4 4 4 0 -1"
+            />
+          </filter>
+        </defs>
+      </svg>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />

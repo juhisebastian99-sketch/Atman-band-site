@@ -1,35 +1,27 @@
 import React from "react";
 
 /**
- * ATMAN Logo — uses the official brand logo image (brush-stroke circle + wordmark).
- * mix-blend-mode: screen removes the black JPG background so the logo shows
- * cleanly against any dark surface (navbar, footer, hero).
+ * ATMAN Logo — the official Enso brush-stroke wordmark JPG.
+ *
+ * The source JPG has a solid black background. We render it cleanly on any
+ * dark surface using a two-layer approach:
+ *   1) SVG feColorMatrix filter (`#atman-remove-black`, defined once at
+ *      App root) that maps pure-black pixels to alpha=0 — a proper cutout.
+ *   2) mix-blend-mode: lighten as a fallback for any rendering path where
+ *      the SVG filter isn't applied — max(dark bg, near-black JPG) still
+ *      keeps the visible artwork.
  */
-export const AtmanLogo = ({ size = 44, showWordmark = true, className = "" }) => {
+export const AtmanLogo = ({ size = 44, className = "" }) => {
   return (
     <div className={`inline-flex items-center ${className}`} data-testid="atman-logo">
-      {/* Inline SVG filter that converts pure black pixels to transparent alpha,
-          so the JPG's black background is invisible on any surface. */}
-      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-        <defs>
-          <filter id="atman-logo-remove-black">
-            <feColorMatrix
-              type="matrix"
-              values="1 0 0 0 0
-                      0 1 0 0 0
-                      0 0 1 0 0
-                      3 3 3 0 -0.6"
-            />
-          </filter>
-        </defs>
-      </svg>
       <img
         src="https://customer-assets.emergentagent.com/job_atman-events/artifacts/4eycqdw3_IMG-20260713-WA0003.jpg"
         alt="ATMAN"
         style={{
           width: size * 2.6,
           height: "auto",
-          filter: "url(#atman-logo-remove-black)",
+          filter: "url(#atman-remove-black) contrast(1.15)",
+          mixBlendMode: "lighten",
         }}
         className="object-contain select-none pointer-events-none"
         draggable={false}

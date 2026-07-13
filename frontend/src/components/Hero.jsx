@@ -66,27 +66,6 @@ export const Hero = () => {
       data-testid="hero-section"
       className="relative min-h-screen w-full overflow-hidden bg-black"
     >
-      {/* SVG color-matrix filter — converts the logo JPG's pure-black pixels
-          into alpha=0 so the Enso brush stroke appears genuinely transparent. */}
-      <svg
-        width="0"
-        height="0"
-        style={{ position: "absolute" }}
-        aria-hidden="true"
-      >
-        <defs>
-          <filter id="atman-remove-black">
-            <feColorMatrix
-              type="matrix"
-              values="1 0 0 0 0
-                      0 1 0 0 0
-                      0 0 1 0 0
-                      3 3 3 0 -0.6"
-            />
-          </filter>
-        </defs>
-      </svg>
-
       {/* Grayscale band silhouette background */}
       <motion.div
         initial={{ scale: 1.08 }}
@@ -137,7 +116,8 @@ export const Hero = () => {
             alt="ATMAN"
             style={{
               filter:
-                "url(#atman-remove-black) drop-shadow(0 0 30px rgba(201,162,39,0.35))",
+                "url(#atman-remove-black) contrast(1.1) drop-shadow(0 0 30px rgba(201,162,39,0.35))",
+              mixBlendMode: "lighten",
             }}
             className="relative w-[320px] sm:w-[440px] md:w-[560px] lg:w-[640px] h-auto object-contain select-none pointer-events-none"
             draggable={false}
