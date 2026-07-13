@@ -2,8 +2,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, PlayCircle, Calendar } from "lucide-react";
 
+// Dramatic stage silhouette with vertical beams — matches luxury mockup reference
 const HERO_BG =
-  "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=2400&q=80";
+  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=2400&q=80";
 
 const scrollTo = (id) => {
   const el = document.getElementById(id);

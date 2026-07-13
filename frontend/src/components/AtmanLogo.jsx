@@ -9,7 +9,7 @@ export const AtmanLogo = ({ size = 44, showWordmark = true, className = "" }) =>
   return (
     <div className={`inline-flex items-center ${className}`} data-testid="atman-logo">
       <img
-        src="https://customer-assets.emergentagent.com/job_atman-events/artifacts/fq98lltx_IMG-20260713-WA0003.jpg"
+        src="https://customer-assets.emergentagent.com/job_atman-events/artifacts/4eycqdw3_IMG-20260713-WA0003.jpg"
         alt="ATMAN"
         style={{
           width: size * 2.6,

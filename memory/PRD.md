@@ -72,3 +72,6 @@ Build a premium, fully responsive website for a luxury live music band called "A
 2. Wire real contact details
 3. Build lightweight admin page for inquiries (auth optional)
 4. Add email notification integration
+
+## Update Log
+- 2026-07-13: Hero background swapped to dramatic musician-silhouette + vertical gold beams shot (Unsplash `1470229722913...`) to match client-provided luxury mockup reference. Logo (`AtmanLogo.jsx`) now uses `mixBlendMode: screen` on the WA0003 JPG asset so the brand Enso circle renders cleanly on any dark surface (navbar, hero, footer). Both changes verified visually against mockup at 1920×900.
