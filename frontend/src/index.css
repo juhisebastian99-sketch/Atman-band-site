@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-    --atman-black: #121212;
-    --atman-charcoal: #1e1e1e;
+    --atman-black: #000000;
+    --atman-charcoal: #0d0d0d;
     --atman-gold: #c9a227;
     --atman-gold-soft: #d9b74a;
     --atman-ivory: #f8f6f2;
@@ -12,13 +12,13 @@
 
 html {
     scroll-behavior: smooth;
-    background-color: var(--atman-black);
+    background-color: #000000;
 }
 
 body {
     margin: 0;
     font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--atman-black);
+    background-color: #000000;
     color: var(--atman-ivory);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -31,7 +31,7 @@ body {
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #121212;
+    background: #000000;
 }
 ::-webkit-scrollbar-thumb {
     background: rgba(201, 162, 39, 0.4);
@@ -216,11 +216,11 @@ body {
 /* Shadcn theme mapping (dark) */
 @layer base {
     :root {
-        --background: 0 0% 7%;
+        --background: 0 0% 0%;
         --foreground: 40 33% 96%;
-        --card: 0 0% 12%;
+        --card: 0 0% 6%;
         --card-foreground: 40 33% 96%;
-        --popover: 0 0% 10%;
+        --popover: 0 0% 4%;
         --popover-foreground: 40 33% 96%;
         --primary: 43 67% 47%;
         --primary-foreground: 0 0% 7%;

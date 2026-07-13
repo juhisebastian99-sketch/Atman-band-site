@@ -2,169 +2,175 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, PlayCircle, Calendar } from "lucide-react";
 
-// Dramatic stage silhouette with vertical beams — matches luxury mockup reference
+// Dark, gritty band silhouettes on stage — matches the "dark. bold. timeless." reference
 const HERO_BG =
-  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=2400&q=80";
+  "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=2400&q=80";
+
+// Enso brush-stroke ATMAN logo (transparent-friendly via mix-blend-mode)
+const LOGO_URL =
+  "https://customer-assets.emergentagent.com/job_atman-events/artifacts/4eycqdw3_IMG-20260713-WA0003.jpg";
 
 const scrollTo = (id) => {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
-const beams = [
-  { left: "8%", rot: -18 },
-  { left: "22%", rot: -10 },
-  { left: "38%", rot: -4 },
-  { left: "52%", rot: 4 },
-  { left: "68%", rot: 10 },
-  { left: "84%", rot: 18 },
-];
-
-// Decorative gold brush stroke SVG (used on left/right edges of hero)
-const BrushStroke = ({ side = "left" }) => (
-  <svg
-    className={`absolute top-1/2 -translate-y-1/2 pointer-events-none select-none hidden md:block ${
-      side === "left" ? "left-0 -translate-x-1/3" : "right-0 translate-x-1/3 scale-x-[-1]"
-    }`}
-    width="360"
-    height="600"
-    viewBox="0 0 360 600"
-    fill="none"
-    aria-hidden="true"
-  >
-    <defs>
-      <linearGradient id={`brush-${side}`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#E9CB6C" stopOpacity="0.85" />
-        <stop offset="60%" stopColor="#C9A227" stopOpacity="0.55" />
-        <stop offset="100%" stopColor="#8F6F18" stopOpacity="0.05" />
-      </linearGradient>
-    </defs>
-    <g fill={`url(#brush-${side})`} opacity="0.9">
-      <path d="M0 120 L180 60 L240 90 L200 140 L60 200 L20 180 Z" />
-      <path d="M0 340 L220 270 L280 300 L200 360 L40 420 L10 400 Z" opacity="0.7" />
-      <path d="M0 500 L160 460 L200 480 L120 520 L20 560 Z" opacity="0.5" />
-    </g>
-  </svg>
-);
+// Gold brush stroke SVG (bottom-left + top-right corner accents, like the reference)
+const BrushCorner = ({ position = "bl" }) => {
+  const positionClasses = {
+    bl: "bottom-0 left-0",
+    tr: "top-0 right-0 rotate-180",
+  };
+  return (
+    <svg
+      className={`absolute ${positionClasses[position]} pointer-events-none select-none hidden md:block`}
+      width="360"
+      height="280"
+      viewBox="0 0 360 280"
+      fill="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={`brush-corner-${position}`} x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stopColor="#E9CB6C" stopOpacity="0.95" />
+          <stop offset="55%" stopColor="#C9A227" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#8F6F18" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#brush-corner-${position})`}>
+        <path d="M0 260 L120 200 L180 220 L60 270 L10 275 Z" />
+        <path d="M0 200 L200 130 L260 150 L140 210 L40 245 Z" opacity="0.75" />
+        <path d="M0 140 L240 60 L300 80 L200 140 L60 190 Z" opacity="0.55" />
+        <path d="M0 80 L260 20 L320 40 L220 90 L80 130 Z" opacity="0.35" />
+      </g>
+    </svg>
+  );
+};
 
 export const Hero = () => {
   return (
     <section
       id="home"
       data-testid="hero-section"
-      className="relative min-h-screen w-full overflow-hidden bg-[#0a0a0a]"
+      className="relative min-h-screen w-full overflow-hidden bg-black"
     >
-      {/* Background image with slow zoom */}
+      {/* SVG color-matrix filter — converts pure black pixels of the logo JPG
+          into transparent alpha, giving us a properly cut-out Enso mark. */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <defs>
+          <filter id="atman-remove-black">
+            <feColorMatrix
+              type="matrix"
+              values="1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      3 3 3 0 -0.6"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* Grayscale band silhouette background — heavily darkened + blurred so the
+          logo JPG's black bg blends invisibly with the surrounding hero. */}
       <motion.div
         initial={{ scale: 1.08 }}
         animate={{ scale: 1 }}
-        transition={{ duration: 12, ease: "easeOut" }}
+        transition={{ duration: 14, ease: "easeOut" }}
         className="absolute inset-0"
       >
         <img
           src={HERO_BG}
-          alt="Live concert stage with musician silhouettes and warm stage lights"
+          alt="ATMAN band silhouettes performing live under stage spotlights"
           className="w-full h-full object-cover object-center"
+          style={{ filter: "grayscale(100%) contrast(1.15) brightness(0.4)" }}
         />
       </motion.div>
 
-      {/* Overlays for contrast — darker to match the template's dramatic look */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/60 to-[#0a0a0a]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,10,10,0.7)_75%)]" />
+      {/* Deep black overlays for dramatic contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.88)_85%)]" />
 
-      {/* Gold brush strokes on the edges (matches reference template) */}
-      <BrushStroke side="left" />
-      <BrushStroke side="right" />
+      {/* Gold brush corner accents (matches the "dark bold timeless" reference) */}
+      <BrushCorner position="bl" />
+      <BrushCorner position="tr" />
 
-      {/* Stage light beams */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {beams.map((b, i) => (
-          <div
-            key={i}
-            className="stage-beam light-flicker"
-            style={{ left: b.left, transform: `rotate(${b.rot}deg)` }}
-          />
-        ))}
-      </div>
-
-      {/* Grain */}
-      <div className="absolute inset-0 grain" />
+      {/* Subtle film grain */}
+      <div className="absolute inset-0 grain opacity-70" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 min-h-screen flex flex-col items-center justify-center text-center pt-28 pb-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 min-h-screen flex flex-col items-center justify-center text-center pt-24 pb-40">
+        {/* Giant Enso logo as centerpiece — ATMAN wordmark is inside the circle.
+            Using mix-blend-mode: lighten so the JPG's pure-black bg has zero
+            visible impact on the underlying dark hero. */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2 }}
-          className="mb-8"
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut" }}
+          className="relative"
+          data-testid="hero-logo"
         >
-          <span className="ornament">Est. Live Music Ensemble</span>
+          {/* Soft gold glow far behind the logo */}
+          <div
+            className="absolute -inset-32 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(201,162,39,0.22) 0%, rgba(201,162,39,0.06) 45%, transparent 70%)",
+              filter: "blur(40px)",
+            }}
+          />
+          <img
+            src={LOGO_URL}
+            alt="ATMAN"
+            style={{
+              filter: "url(#atman-remove-black) drop-shadow(0 0 30px rgba(201,162,39,0.35))",
+            }}
+            className="relative w-[320px] sm:w-[440px] md:w-[560px] lg:w-[640px] h-auto object-contain select-none pointer-events-none"
+            draggable={false}
+          />
         </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.1, delay: 0.35 }}
-          className="font-cinzel text-6xl sm:text-7xl md:text-8xl lg:text-[9rem] leading-none tracking-[0.08em] gold-text drop-shadow-[0_2px_20px_rgba(201,162,39,0.35)]"
-          data-testid="hero-title"
-        >
-          ATMAN
-        </motion.h1>
-
+        {/* Tagline — matches "MUSIC. SOUL. CONNECTION." style from reference */}
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="mt-6 font-cormorant italic text-2xl sm:text-3xl md:text-4xl text-[#F8F6F2]/90 tracking-wide"
+          transition={{ duration: 1, delay: 0.9 }}
+          className="mt-2 sm:mt-4 font-cinzel text-sm sm:text-base md:text-lg tracking-[0.5em] uppercase text-[#F8F6F2]/90"
           data-testid="hero-tagline"
         >
-          Music That Touches The Soul
+          <span>Music</span>
+          <span className="mx-3 text-[#C9A227]">·</span>
+          <span className="text-[#C9A227]">Soul</span>
+          <span className="mx-3 text-[#C9A227]">·</span>
+          <span>Connection</span>
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.9, delay: 0.8 }}
+          transition={{ duration: 1, delay: 1.2 }}
           className="my-8 h-px w-40 bg-gradient-to-r from-transparent via-[#C9A227] to-transparent"
         />
 
         <motion.p
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.9 }}
-          className="max-w-2xl text-sm sm:text-base text-[#F8F6F2]/75 tracking-wide leading-relaxed"
+          transition={{ duration: 1, delay: 1.35 }}
+          className="max-w-xl text-xs sm:text-sm text-[#F8F6F2]/60 tracking-[0.25em] uppercase leading-relaxed"
         >
-          Luxury Live Music for Weddings, Destination Weddings, Corporate Events
-          &amp; Private Celebrations.
+          Dark · Bold · Timeless — Live Music for Weddings, Destination Weddings,
+          Corporate Events &amp; Private Celebrations
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.05 }}
-          className="mt-8 flex flex-wrap justify-center items-center gap-3"
-          data-testid="hero-genres"
-        >
-          {["Bollywood", "Sufi", "Rock"].map((g, i) => (
-            <React.Fragment key={g}>
-              <span className="font-cinzel text-xs sm:text-sm tracking-[0.35em] uppercase text-[#F8F6F2]/90 px-4 py-2 border border-[#C9A227]/30 rounded-full backdrop-blur-sm bg-[#0a0a0a]/40">
-                {g}
-              </span>
-              {i < 2 && <span className="text-[#C9A227]/60 text-xs">◆</span>}
-            </React.Fragment>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.2 }}
+          transition={{ duration: 1, delay: 1.55 }}
           className="mt-10 flex flex-col sm:flex-row items-center gap-4"
         >
           <button
             onClick={() => scrollTo("booking")}
             data-testid="hero-book-btn"
-            className="gold-btn group inline-flex items-center gap-3 bg-[#C9A227] text-[#121212] font-cinzel tracking-[0.25em] uppercase text-xs sm:text-sm px-8 py-4 rounded-none"
+            className="gold-btn group inline-flex items-center gap-3 bg-[#C9A227] text-black font-cinzel tracking-[0.3em] uppercase text-xs sm:text-sm px-8 py-4 rounded-none"
           >
             <Calendar size={16} strokeWidth={2} />
             Book ATMAN
@@ -172,7 +178,7 @@ export const Hero = () => {
           <button
             onClick={() => scrollTo("performances")}
             data-testid="hero-watch-btn"
-            className="ghost-btn inline-flex items-center gap-3 border border-[#C9A227]/70 text-[#F8F6F2] font-cinzel tracking-[0.25em] uppercase text-xs sm:text-sm px-8 py-4 rounded-none"
+            className="ghost-btn inline-flex items-center gap-3 border border-[#C9A227]/70 text-[#F8F6F2] font-cinzel tracking-[0.3em] uppercase text-xs sm:text-sm px-8 py-4 rounded-none"
           >
             <PlayCircle size={16} strokeWidth={1.6} />
             Watch Performances

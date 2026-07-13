@@ -75,3 +75,8 @@ Build a premium, fully responsive website for a luxury live music band called "A
 
 ## Update Log
 - 2026-07-13: Hero background swapped to dramatic musician-silhouette + vertical gold beams shot (Unsplash `1470229722913...`) to match client-provided luxury mockup reference. Logo (`AtmanLogo.jsx`) now uses `mixBlendMode: screen` on the WA0003 JPG asset so the brand Enso circle renders cleanly on any dark surface (navbar, hero, footer). Both changes verified visually against mockup at 1920×900.
+- 2026-07-13 (v2): Full theme overhaul to match client's "DARK · BOLD · TIMELESS" mockup (`WA0009.jpg`). Changes:
+  - Global bg switched from warm charcoal `#121212` to pure black `#000000` (index.css, App.css, shadcn tokens).
+  - Hero completely restructured: giant Enso logo as centerpiece (with ATMAN wordmark inside the ring), tagline "MUSIC · SOUL · CONNECTION", grayscale + darkened band-silhouette bg (`photo-1493225457124...`), gold brush stroke corner accents (bottom-left + top-right), "DARK · BOLD · TIMELESS" subtitle.
+  - Logo transparency solved properly: applied SVG `feColorMatrix` filter (`atman-remove-black`) that maps pure black pixels to alpha=0 → the JPG's solid black background is genuinely cut out, no visible rectangle. Applied to both `Hero.jsx` (centerpiece) and `AtmanLogo.jsx` (navbar/footer).
+  - Removed the giant serif `ATMAN` heading (wordmark is now inside the logo circle).
