@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Instagram, Youtube, Music2, Facebook } from "lucide-react";
 import AtmanLogo from "./AtmanLogo";
 
 const links = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
-  { id: "services", label: "Services" },
-  { id: "genres", label: "Genres" },
-  { id: "performances", label: "Videos" },
+  { id: "performances", label: "Music" },
+  { id: "services", label: "Shows" },
   { id: "gallery", label: "Gallery" },
-  { id: "testimonials", label: "Reviews" },
   { id: "booking", label: "Contact" },
+];
+
+const socials = [
+  { href: "https://instagram.com/", label: "Instagram", Icon: Instagram },
+  { href: "https://youtube.com/", label: "YouTube", Icon: Youtube },
+  { href: "https://open.spotify.com/", label: "Spotify", Icon: Music2 },
+  { href: "https://facebook.com/", label: "Facebook", Icon: Facebook },
 ];
 
 const scrollTo = (id) => {
@@ -33,7 +38,7 @@ export const Navbar = () => {
       data-testid="atman-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-500 ${
         scrolled
-          ? "backdrop-blur-xl bg-[#121212]/80 border-b border-[#C9A227]/20"
+          ? "backdrop-blur-xl bg-black/80 border-b border-[#C9A227]/20"
           : "bg-transparent"
       }`}
     >
@@ -59,14 +64,21 @@ export const Navbar = () => {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
-          <button
-            onClick={() => scrollTo("booking")}
-            data-testid="nav-book-btn"
-            className="gold-btn font-cinzel text-[0.72rem] tracking-[0.28em] uppercase border border-[#C9A227] text-[#C9A227] px-6 py-3 rounded-none"
-          >
-            Book ATMAN
-          </button>
+        {/* Social icons on the right — matches reference mockup */}
+        <div className="hidden lg:flex items-center gap-5" data-testid="nav-socials">
+          {socials.map(({ href, label, Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={label}
+              data-testid={`nav-social-${label.toLowerCase()}`}
+              className="text-[#F8F6F2]/75 hover:text-[#C9A227] transition-colors"
+            >
+              <Icon size={18} strokeWidth={1.6} />
+            </a>
+          ))}
         </div>
 
         <button
@@ -81,7 +93,7 @@ export const Navbar = () => {
 
       {open && (
         <div
-          className="lg:hidden bg-[#121212]/95 backdrop-blur-xl border-t border-[#C9A227]/15"
+          className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-[#C9A227]/15"
           data-testid="mobile-menu"
         >
           <div className="flex flex-col px-6 py-6 gap-5">
@@ -98,16 +110,20 @@ export const Navbar = () => {
                 {l.label}
               </button>
             ))}
-            <button
-              onClick={() => {
-                setOpen(false);
-                scrollTo("booking");
-              }}
-              data-testid="mobile-book-btn"
-              className="gold-btn mt-2 font-cinzel text-xs tracking-[0.28em] uppercase border border-[#C9A227] text-[#C9A227] px-6 py-3 rounded-none"
-            >
-              Book ATMAN
-            </button>
+            <div className="flex items-center gap-6 pt-2">
+              {socials.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="text-[#F8F6F2]/75 hover:text-[#C9A227] transition-colors"
+                >
+                  <Icon size={20} strokeWidth={1.6} />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       )}
