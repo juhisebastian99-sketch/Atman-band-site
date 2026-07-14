@@ -105,6 +105,8 @@ class SiteSettings(BaseModel):
     whatsapp: str = ""
     hero_tagline: str = "Music That Touches The Soul"
     hero_subline: str = "Luxury Live Music for Weddings, Destination Weddings, Corporate Events & Private Celebrations."
+    about_heading: str = "We Are ATMAN"
+    about_body: str = "A fusion of rock, soul and storytelling. We create experiences that connect, inspire and stay with you long after the music fades."
 
 
 class VideoCreate(BaseModel):
