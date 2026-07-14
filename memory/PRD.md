@@ -106,3 +106,11 @@ Build a premium, fully responsive website for a luxury live music band called "A
   - Diagnosed: `customer-assets.emergentagent.com` does NOT send `Access-Control-Allow-Origin` headers, which caused canvas `getImageData()` to throw a CORS security error in the client's Chrome. The canvas processing silently failed and the component fell back to the raw JPG (with visible black rectangle on dark bg → invisible logo).
   - Fix: Pre-processed the logo server-side using Python PIL (near-black pixels → alpha 0 with feathered edges) and saved as `/app/frontend/public/atman-logo.png` — a proper 32KB transparent PNG. AtmanLogo now references `/atman-logo.png` (same-origin static asset), no canvas, no CORS, no CSS filter, no blend mode. Works in every browser identically.
   - Also added `no-cache` meta tags to `index.html` so future updates render fresh.
+- 2026-07-13 (v8): **Gallery admin CRUD + Shows empty state + darker images matching mockup.**
+  - New backend `Gallery` model + `/api/gallery` + `/api/admin/gallery/*` (FastAPI + Netlify function `gallery.js` + Blobs + `netlify.toml` routing).
+  - New `useGallery()` hook. LandingBento `GalleryCard` now uses live gallery from `/api/gallery` (falls back to defaults if empty).
+  - New admin **Gallery tab** with add/edit/delete rows — image URL, caption, order — plus a live thumbnail preview per row.
+  - Empty state for shows: when admin deletes all shows, the site shows an elegant "NO SHOWS SCHEDULED — Follow us on socials or subscribe below to be the first to know when the next date drops." panel instead of an awkward blank block.
+  - Removed the crowd-of-faces European festival image from the hero. Swapped hero + about + shows background to darker/blurred concert-stage silhouettes matching the mockup aesthetic.
+  - All hero/about/gallery/shows-bg images now apply `grayscale + brightness ~0.3-0.5 + slight blur` filter → moody, dark, "energy with elegance" look from reference.
+  - E2E verified via curl: gallery seed (6 items) → create → delete works; shows delete-all → empty state shows on site (screenshotted); shows re-seeded via admin API. 

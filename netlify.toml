@@ -60,6 +60,18 @@
   force = true
 
 [[redirects]]
+  from = "/api/admin/gallery"
+  to = "/.netlify/functions/gallery"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/admin/gallery/*"
+  to = "/.netlify/functions/gallery"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/settings"
   to = "/.netlify/functions/settings"
   status = 200
@@ -74,6 +86,12 @@
 [[redirects]]
   from = "/api/shows"
   to = "/.netlify/functions/shows"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/gallery"
+  to = "/.netlify/functions/gallery"
   status = 200
   force = true
 

@@ -135,6 +135,18 @@ class Show(ShowCreate):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+class GalleryItemCreate(BaseModel):
+    url: str = Field(..., min_length=5, max_length=800)
+    caption: str = Field(default="", max_length=200)
+    order: int = 0
+
+
+class GalleryItem(GalleryItemCreate):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 # ---------- Routes ----------
 @api_router.get("/")
 async def root():
@@ -173,6 +185,18 @@ async def list_videos():
 @api_router.get("/shows", response_model=List[Show])
 async def list_shows():
     items = await db.shows.find({}, {"_id": 0}).sort([("order", 1), ("created_at", 1)]).to_list(200)
+    for it in items:
+        if isinstance(it.get('created_at'), str):
+            try:
+                it['created_at'] = datetime.fromisoformat(it['created_at'])
+            except Exception:
+                pass
+    return items
+
+
+@api_router.get("/gallery", response_model=List[GalleryItem])
+async def list_gallery():
+    items = await db.gallery.find({}, {"_id": 0}).sort([("order", 1), ("created_at", 1)]).to_list(200)
     for it in items:
         if isinstance(it.get('created_at'), str):
             try:
@@ -280,6 +304,38 @@ async def delete_show(show_id: str, current=Depends(require_admin)):
     return {"ok": True}
 
 
+@api_router.post("/admin/gallery", response_model=GalleryItem, status_code=201)
+async def create_gallery(payload: GalleryItemCreate, current=Depends(require_admin)):
+    g = GalleryItem(**payload.model_dump())
+    doc = g.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.gallery.insert_one(doc)
+    return g
+
+
+@api_router.put("/admin/gallery/{item_id}", response_model=GalleryItem)
+async def update_gallery(item_id: str, payload: GalleryItemCreate, current=Depends(require_admin)):
+    existing = await db.gallery.find_one({"id": item_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+    updated = {**existing, **payload.model_dump()}
+    await db.gallery.update_one({"id": item_id}, {"$set": payload.model_dump()})
+    if isinstance(updated.get('created_at'), str):
+        try:
+            updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+        except Exception:
+            updated['created_at'] = datetime.now(timezone.utc)
+    return GalleryItem(**updated)
+
+
+@api_router.delete("/admin/gallery/{item_id}")
+async def delete_gallery(item_id: str, current=Depends(require_admin)):
+    res = await db.gallery.delete_one({"id": item_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+    return {"ok": True}
+
+
 app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
@@ -302,6 +358,15 @@ DEFAULT_SHOWS = [
     {"day": "24", "month": "Jun", "title": "Live at Blue Frog", "city": "Mumbai, India", "ticket_url": "", "order": 1},
     {"day": "05", "month": "Jul", "title": "Rock Night Fest", "city": "Pune, India", "ticket_url": "", "order": 2},
     {"day": "19", "month": "Jul", "title": "Sounds of Soul", "city": "Bangalore, India", "ticket_url": "", "order": 3},
+]
+
+DEFAULT_GALLERY = [
+    {"url": "https://images.unsplash.com/photo-1508973265221-b03b71c14eab?auto=format&fit=crop&w=800&q=80", "caption": "", "order": 1},
+    {"url": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80", "caption": "", "order": 2},
+    {"url": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", "caption": "", "order": 3},
+    {"url": "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=800&q=80", "caption": "", "order": 4},
+    {"url": "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=800&q=80", "caption": "", "order": 5},
+    {"url": "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?auto=format&fit=crop&w=800&q=80", "caption": "", "order": 6},
 ]
 
 
@@ -335,6 +400,13 @@ async def on_startup():
             d = show.model_dump()
             d['created_at'] = d['created_at'].isoformat()
             await db.shows.insert_one(d)
+    gallery_count = await db.gallery.count_documents({})
+    if gallery_count == 0:
+        for g in DEFAULT_GALLERY:
+            item = GalleryItem(**g)
+            d = item.model_dump()
+            d['created_at'] = d['created_at'].isoformat()
+            await db.gallery.insert_one(d)
 
 
 @app.on_event("shutdown")

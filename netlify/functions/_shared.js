@@ -126,6 +126,15 @@ export const DEFAULT_SHOWS = [
   { id: "show-3", day: "19", month: "Jul", title: "Sounds of Soul", city: "Bangalore, India", ticket_url: "", order: 3, created_at: new Date().toISOString() },
 ];
 
+export const DEFAULT_GALLERY = [
+  { id: "g-1", url: "https://images.unsplash.com/photo-1508973265221-b03b71c14eab?auto=format&fit=crop&w=800&q=80", caption: "", order: 1, created_at: new Date().toISOString() },
+  { id: "g-2", url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80", caption: "", order: 2, created_at: new Date().toISOString() },
+  { id: "g-3", url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80", caption: "", order: 3, created_at: new Date().toISOString() },
+  { id: "g-4", url: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=800&q=80", caption: "", order: 4, created_at: new Date().toISOString() },
+  { id: "g-5", url: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=800&q=80", caption: "", order: 5, created_at: new Date().toISOString() },
+  { id: "g-6", url: "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?auto=format&fit=crop&w=800&q=80", caption: "", order: 6, created_at: new Date().toISOString() },
+];
+
 export async function loadSettings() {
   const saved = (await store().get("settings", { type: "json" })) || {};
   return { ...DEFAULT_SETTINGS, ...saved };
@@ -159,6 +168,19 @@ export async function loadShows() {
 }
 export async function saveShows(list) {
   await store().setJSON("shows", list);
+  return list;
+}
+
+export async function loadGallery() {
+  let list = await store().get("gallery", { type: "json" });
+  if (!Array.isArray(list)) {
+    list = DEFAULT_GALLERY;
+    await store().setJSON("gallery", list);
+  }
+  return [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+export async function saveGallery(list) {
+  await store().setJSON("gallery", list);
   return list;
 }
 

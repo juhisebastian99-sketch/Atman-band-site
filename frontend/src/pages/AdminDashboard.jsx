@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   LogOut, Save, Trash2, Plus, Youtube, Contact, Mail, MessageSquare,
-  Loader2, Inbox, Calendar as CalendarIcon,
+  Loader2, Inbox, Calendar as CalendarIcon, Image as ImageIcon,
 } from "lucide-react";
 import { api, clearToken, getToken, formatApiError } from "@/lib/api";
 import AtmanLogo from "@/components/AtmanLogo";
@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
 
 const emptyVideo = { youtube_id: "", title: "", subtitle: "", order: 0 };
 const emptyShow = { day: "", month: "", title: "", city: "", ticket_url: "", order: 0 };
+const emptyGallery = { url: "", caption: "", order: 0 };
 const inputCls =
   "w-full bg-transparent border-b border-[#C9A227]/25 focus:border-[#C9A227] outline-none py-2.5 text-[#F8F6F2] placeholder:text-[#F8F6F2]/40 text-sm";
 
@@ -33,10 +34,12 @@ export default function AdminDashboard() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [videos, setVideos] = useState([]);
   const [shows, setShows] = useState([]);
+  const [gallery, setGallery] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [saving, setSaving] = useState(false);
   const [newVid, setNewVid] = useState(emptyVideo);
   const [newShow, setNewShow] = useState(emptyShow);
+  const [newGallery, setNewGallery] = useState(emptyGallery);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function AdminDashboard() {
       api.get("/settings").then((r) => setSettings({ ...DEFAULT_SETTINGS, ...r.data })),
       api.get("/videos").then((r) => setVideos(r.data || [])),
       api.get("/shows").then((r) => setShows(r.data || [])).catch(() => {}),
+      api.get("/gallery").then((r) => setGallery(r.data || [])).catch(() => {}),
       api.get("/admin/bookings").then((r) => setInquiries(r.data || [])).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, [nav]);
@@ -157,6 +161,48 @@ export default function AdminDashboard() {
     }
   };
 
+  const addGallery = async () => {
+    if (!newGallery.url) return toast.error("Image URL is required.");
+    try {
+      const { data } = await api.post("/admin/gallery", {
+        ...newGallery,
+        order: Number(newGallery.order) || 0,
+      });
+      setGallery((g) => [...g, data].sort((a, b) => (a.order || 0) - (b.order || 0)));
+      setNewGallery(emptyGallery);
+      toast.success("Image added to gallery.");
+    } catch (e) {
+      toast.error(formatApiError(e));
+    }
+  };
+
+  const updateGallery = async (id, patch) => {
+    const current = gallery.find((v) => v.id === id);
+    if (!current) return;
+    const next = { ...current, ...patch };
+    setGallery((gs) => gs.map((g) => (g.id === id ? next : g)));
+    try {
+      await api.put(`/admin/gallery/${id}`, {
+        url: next.url,
+        caption: next.caption || "",
+        order: Number(next.order) || 0,
+      });
+    } catch (e) {
+      toast.error(formatApiError(e));
+    }
+  };
+
+  const deleteGallery = async (id) => {
+    if (!window.confirm("Delete this gallery image?")) return;
+    try {
+      await api.delete(`/admin/gallery/${id}`);
+      setGallery((v) => v.filter((x) => x.id !== id));
+      toast.success("Gallery image deleted.");
+    } catch (e) {
+      toast.error(formatApiError(e));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#121212] text-[#F8F6F2] font-poppins">
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#121212]/85 border-b border-[#C9A227]/20">
@@ -193,6 +239,7 @@ export default function AdminDashboard() {
               { k: "settings", label: "Contact", icon: Contact },
               { k: "videos", label: "Videos", icon: Youtube },
               { k: "shows", label: "Shows", icon: CalendarIcon },
+              { k: "gallery", label: "Gallery", icon: ImageIcon },
               { k: "inquiries", label: "Inquiries", icon: Inbox },
             ].map((t) => {
               const Icon = t.icon;
@@ -360,6 +407,70 @@ export default function AdminDashboard() {
                       <button onClick={() => deleteShow(s.id)} data-testid={`delete-show-${s.id}`}
                         className="p-3 text-[#F8F6F2]/70 hover:text-red-400 border border-[#C9A227]/20 hover:border-red-400/50 transition-colors"
                         aria-label="Delete show">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ) : tab === "gallery" ? (
+            <motion.div key="gallery" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} data-testid="admin-gallery-panel">
+              <div className="bg-[#1a1a1a] border border-[#C9A227]/15 p-8 lg:p-10 mb-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <Plus size={18} className="text-[#C9A227]" />
+                  <h2 className="font-cinzel text-xl">Add Gallery Image</h2>
+                </div>
+                <p className="text-xs text-[#F8F6F2]/60 mb-6">
+                  Paste any public image URL — Unsplash, your own hosted CDN, or the direct link
+                  to an image from Instagram / Google Photos (right-click → Copy image address).
+                </p>
+                <div className="grid md:grid-cols-6 gap-6">
+                  <div className="md:col-span-4">
+                    <Field label="Image URL" data-testid="new-gallery-url" value={newGallery.url} onChange={(e) => setNewGallery({ ...newGallery, url: e.target.value })} placeholder="https://…jpg" />
+                  </div>
+                  <div className="md:col-span-1">
+                    <Field label="Caption" data-testid="new-gallery-caption" value={newGallery.caption} onChange={(e) => setNewGallery({ ...newGallery, caption: e.target.value })} placeholder="Optional" />
+                  </div>
+                  <div className="md:col-span-1">
+                    <Field label="Order" data-testid="new-gallery-order" type="number" value={newGallery.order} onChange={(e) => setNewGallery({ ...newGallery, order: e.target.value })} placeholder="0" />
+                  </div>
+                </div>
+                <button onClick={addGallery} data-testid="new-gallery-add"
+                  className="gold-btn mt-8 inline-flex items-center gap-3 bg-[#C9A227] text-[#121212] font-cinzel tracking-[0.28em] uppercase text-xs px-8 py-4">
+                  <Plus size={16} /> Add Image
+                </button>
+              </div>
+
+              <div className="space-y-4" data-testid="admin-gallery-list">
+                {gallery.length === 0 && (
+                  <div className="text-center text-[#F8F6F2]/50 py-16 border border-dashed border-[#C9A227]/20">
+                    No gallery images yet — add the first one above.
+                  </div>
+                )}
+                {gallery.map((g) => (
+                  <div key={g.id} data-testid={`gallery-row-${g.id}`}
+                    className="bg-[#1a1a1a] border border-[#C9A227]/15 p-4 grid lg:grid-cols-12 gap-4 items-center">
+                    <div className="lg:col-span-2">
+                      <div className="aspect-square overflow-hidden border border-[#C9A227]/15 bg-black">
+                        {g.url && (
+                          <img src={g.url} alt="preview" className="w-full h-full object-cover" style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.85)" }} />
+                        )}
+                      </div>
+                    </div>
+                    <div className="lg:col-span-6">
+                      <Field label="Image URL" value={g.url} onChange={(e) => updateGallery(g.id, { url: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-2">
+                      <Field label="Caption" value={g.caption || ""} onChange={(e) => updateGallery(g.id, { caption: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-1">
+                      <Field label="Order" type="number" value={g.order} onChange={(e) => updateGallery(g.id, { order: e.target.value })} />
+                    </div>
+                    <div className="lg:col-span-1 flex lg:justify-end">
+                      <button onClick={() => deleteGallery(g.id)} data-testid={`delete-gallery-${g.id}`}
+                        className="p-3 text-[#F8F6F2]/70 hover:text-red-400 border border-[#C9A227]/20 hover:border-red-400/50 transition-colors"
+                        aria-label="Delete image">
                         <Trash2 size={16} />
                       </button>
                     </div>

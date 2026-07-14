@@ -14,22 +14,22 @@ import {
 import Navbar from "@/components/Navbar";
 import Booking from "@/components/Booking";
 import AtmanLogo, { AtmanLogoLarge } from "@/components/AtmanLogo";
-import { useSiteSettings, useVideos, useShows } from "@/hooks/useSiteData";
+import { useSiteSettings, useVideos, useShows, useGallery } from "@/hooks/useSiteData";
 
 const LOGO_URL =
   "https://customer-assets.emergentagent.com/job_atman-events/artifacts/4eycqdw3_IMG-20260713-WA0003.jpg";
 
-// Hero band-silhouettes-on-stage background — grayscale, high-contrast
+// Hero band-silhouettes-on-stage — musicians with instruments, dramatic smoke + spotlights
 const HERO_BG =
-  "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=2000&q=80";
+  "https://images.unsplash.com/photo-1508973265221-b03b71c14eab?auto=format&fit=crop&w=2000&q=80";
 
-// "We Are ATMAN" band group portrait
+// "We Are ATMAN" band group portrait — 4-piece band silhouettes on stage
 const BAND_PORTRAIT =
-  "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1400&q=80";
+  "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?auto=format&fit=crop&w=1400&q=80";
 
-// Concert crowd (used behind Upcoming Shows panel)
+// Blurred concert crowd (used behind Upcoming Shows panel)
 const SHOWS_BG =
-  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1600&q=80";
+  "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=1600&q=80";
 
 // Music album cover art — 4 releases
 const ALBUMS = [
@@ -366,19 +366,19 @@ const MusicCard = ({ videos = [] }) => {
 };
 
 const ShowsCard = ({ shows = [] }) => {
-  const list = shows.length ? shows : SHOWS;
+  const list = shows;
   return (
   <section
     id="shows"
     data-testid="bento-shows"
     className="relative overflow-hidden bg-[#050505] border border-[#C9A227]/10 p-8 lg:p-10 min-h-[380px]"
   >
-    {/* Concert-crowd background at low opacity */}
+    {/* Blurred concert-crowd background */}
     <img
       src={SHOWS_BG}
       alt=""
       className="absolute inset-0 w-full h-full object-cover object-center"
-      style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.35)" }}
+      style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.32) blur(3px)" }}
     />
     <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/85 to-transparent" />
 
@@ -386,52 +386,74 @@ const ShowsCard = ({ shows = [] }) => {
       <span className="text-[0.65rem] tracking-[0.35em] uppercase text-[#C9A227] font-cinzel">
         Upcoming Shows
       </span>
-      <button
-        data-testid="shows-view-all"
-        className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/70 hover:text-[#C9A227] transition-colors font-cinzel"
-      >
-        View All
-      </button>
+      {list.length > 0 && (
+        <button
+          data-testid="shows-view-all"
+          className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/70 hover:text-[#C9A227] transition-colors font-cinzel"
+        >
+          View All
+        </button>
+      )}
     </div>
 
-    <div className="relative z-10 space-y-5 max-w-md">
-      {list.map((s, i) => (
-        <div
-          key={s.id || s.title}
-          data-testid={`show-${i}`}
-          className="group flex items-center gap-5 border-b border-[#C9A227]/15 pb-5 last:border-b-0"
-        >
-          <div className="border border-[#C9A227]/40 px-3 py-2 text-center min-w-[52px]">
-            <div className="font-cinzel text-lg text-[#F8F6F2] leading-none">
-              {s.day}
-            </div>
-            <div className="text-[0.55rem] tracking-[0.3em] uppercase text-[#C9A227] mt-1">
-              {s.month}
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="font-cinzel text-sm sm:text-base uppercase tracking-[0.15em] text-[#F8F6F2]">
-              {s.title}
-            </div>
-            <div className="text-[0.7rem] text-[#F8F6F2]/55 mt-1">{s.city}</div>
-          </div>
-          <button
-            onClick={() => {
-              if (s.ticket_url) window.open(s.ticket_url, "_blank");
-              else scrollToId("booking");
-            }}
-            className="text-[0.6rem] tracking-[0.3em] uppercase text-[#C9A227] hover:underline underline-offset-4 font-cinzel"
-          >
-            Book Tickets
-          </button>
+    {list.length === 0 ? (
+      <div
+        data-testid="shows-empty-state"
+        className="relative z-10 flex flex-col items-center justify-center py-16 text-center max-w-md mx-auto"
+      >
+        <div className="w-14 h-14 border border-[#C9A227]/40 rounded-full flex items-center justify-center mb-5">
+          <span className="font-cinzel text-lg text-[#C9A227]">·</span>
         </div>
-      ))}
-    </div>
+        <p className="font-cinzel text-sm tracking-[0.28em] uppercase text-[#F8F6F2]/70">
+          No shows scheduled
+        </p>
+        <p className="mt-3 text-xs text-[#F8F6F2]/50 max-w-xs leading-relaxed">
+          Follow us on socials or subscribe below to be the first to know when
+          the next date drops.
+        </p>
+      </div>
+    ) : (
+      <div className="relative z-10 space-y-5 max-w-md">
+        {list.map((s, i) => (
+          <div
+            key={s.id || s.title}
+            data-testid={`show-${i}`}
+            className="group flex items-center gap-5 border-b border-[#C9A227]/15 pb-5 last:border-b-0"
+          >
+            <div className="border border-[#C9A227]/40 px-3 py-2 text-center min-w-[52px]">
+              <div className="font-cinzel text-lg text-[#F8F6F2] leading-none">
+                {s.day}
+              </div>
+              <div className="text-[0.55rem] tracking-[0.3em] uppercase text-[#C9A227] mt-1">
+                {s.month}
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="font-cinzel text-sm sm:text-base uppercase tracking-[0.15em] text-[#F8F6F2]">
+                {s.title}
+              </div>
+              <div className="text-[0.7rem] text-[#F8F6F2]/55 mt-1">{s.city}</div>
+            </div>
+            <button
+              onClick={() => {
+                if (s.ticket_url) window.open(s.ticket_url, "_blank");
+                else scrollToId("booking");
+              }}
+              className="text-[0.6rem] tracking-[0.3em] uppercase text-[#C9A227] hover:underline underline-offset-4 font-cinzel"
+            >
+              Book Tickets
+            </button>
+          </div>
+        ))}
+      </div>
+    )}
   </section>
   );
 };
 
-const GalleryCard = () => (
+const GalleryCard = ({ gallery = [] }) => {
+  const list = gallery.length ? gallery.map((g) => g.url) : GALLERY;
+  return (
   <section
     id="gallery"
     data-testid="bento-gallery"
@@ -441,32 +463,41 @@ const GalleryCard = () => (
       <span className="text-[0.65rem] tracking-[0.35em] uppercase text-[#C9A227] font-cinzel">
         Gallery
       </span>
-      <button
-        data-testid="gallery-view-all"
-        className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/70 hover:text-[#C9A227] transition-colors font-cinzel"
-      >
-        View All
-      </button>
-    </div>
-    <div className="grid grid-cols-3 gap-3">
-      {GALLERY.map((src, i) => (
-        <div
-          key={i}
-          data-testid={`gallery-item-${i}`}
-          className="group relative aspect-square overflow-hidden border border-[#C9A227]/15 hover:border-[#C9A227]/60 transition-colors cursor-pointer"
+      {list.length > 0 && (
+        <button
+          data-testid="gallery-view-all"
+          className="text-[0.6rem] tracking-[0.3em] uppercase text-[#F8F6F2]/70 hover:text-[#C9A227] transition-colors font-cinzel"
         >
-          <img
-            src={src}
-            alt={`Gallery ${i + 1}`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.85)" }}
-          />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
-        </div>
-      ))}
+          View All
+        </button>
+      )}
     </div>
+    {list.length === 0 ? (
+      <div className="text-center py-16 text-[#F8F6F2]/50 text-xs tracking-[0.25em] uppercase font-cinzel">
+        Gallery coming soon
+      </div>
+    ) : (
+      <div className="grid grid-cols-3 gap-3">
+        {list.slice(0, 6).map((src, i) => (
+          <div
+            key={i}
+            data-testid={`gallery-item-${i}`}
+            className="group relative aspect-square overflow-hidden border border-[#C9A227]/15 hover:border-[#C9A227]/60 transition-colors cursor-pointer"
+          >
+            <img
+              src={src}
+              alt={`Gallery ${i + 1}`}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.8)" }}
+            />
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+          </div>
+        ))}
+      </div>
+    )}
   </section>
-);
+  );
+};
 
 const FooterBento = ({ settings }) => {
   const [email, setEmail] = useState("");
@@ -605,6 +636,7 @@ export const LandingBento = () => {
   const settings = useSiteSettings();
   const videos = useVideos();
   const shows = useShows();
+  const gallery = useGallery();
 
   return (
     <div
@@ -632,7 +664,7 @@ export const LandingBento = () => {
             <ShowsCard shows={shows} />
           </div>
           <div className="lg:col-span-5">
-            <GalleryCard />
+            <GalleryCard gallery={gallery} />
           </div>
         </div>
       </main>

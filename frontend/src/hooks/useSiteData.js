@@ -72,3 +72,21 @@ export const useShows = () => {
   }, []);
   return shows;
 };
+
+export const useGallery = () => {
+  const [gallery, setGallery] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    axios
+      .get(`${API}/gallery`)
+      .then((r) => {
+        if (!alive) return;
+        if (Array.isArray(r?.data)) setGallery(r.data);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return gallery;
+};
